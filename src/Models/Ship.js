@@ -11,6 +11,12 @@ const TYPES = [
   { name: 'Galleon', size: 4 },
 ];
 
+const STATES = {
+  SUNKEN: 0,
+  GARAGE: 1,
+  FLOATING: 2,
+};
+
 class Ship {
 
   static types() {
@@ -19,6 +25,10 @@ class Ship {
 
   static shapes() {
     return SHAPES;
+  }
+
+  static states() {
+    return STATES;
   }
 
   constructor(type) {
@@ -30,7 +40,20 @@ class Ship {
       this._size = 0;
     }
 
+    this._state = STATES.GARAGE;
     this._shape = SHAPES.HORIZONTAL;
+  }
+
+  sink() {
+    return this._state = STATES.SUNKEN;
+  }
+
+  launch() {
+    return this._state = STATES.FLOATING;
+  }
+
+  state() {
+    return this._state;
   }
 
   type() {

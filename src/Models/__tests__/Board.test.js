@@ -1,34 +1,37 @@
 import Board from '../Board';
+import Ship from '../Ship';
 
 describe('Board', () => {
+  const { UNREVEALED, WATER, HIT } = Board.results();
+  const { SUNKEN, GARAGE, FLOATING } = Ship.states();
   let board;
 
   beforeEach(() => {
-    cellTypes = Board.cellTypes();
     board = new Board();
   });
 
   describe('class', () => {
     it('can return cell types ENUMs', () => {
-      expect(cellTypes).toBeDefined();
-      expect(typeof cellTypes).toBe('object');
+      expect(UNREVEALED).toBe(0);
+      expect(WATER).toBe(1);
+      expect(HIT).toBe(2);
     });
 
-    it('constructs an instance correctly with default dimension', () => {
+    it('constructs an instance correctly with default dimensions', () => {
       expect(board).not.toBe(undefined);
-      expect(board.dimension()).toBeEqual([10, 10]);
+      expect(board.dim()).toBeEqual([10, 10]);
     });
 
     it('can verify if target is correct (not out of bounds, negative number or fraction)', () => {
-      expect(Board.verifyTarget([-1, 0], board)).toBe(false);
-      expect(Board.verifyTarget([0, 0.2], board)).toBe(false);
-      expect(Board.verifyTarget([10, 10], board)).toBe(false);
-      expect(Board.verifyTarget([0, 9], board)).toBe(true);
+      expect(Board.verifyTarget(board, [-1, 0])).toBe(false);
+      expect(Board.verifyTarget(board, [0, 0.2])).toBe(false);
+      expect(Board.verifyTarget(board, [10, 10])).toBe(false);
+      expect(Board.verifyTarget(board, [0, 9])).toBe(true);
     });
 
     it('can verify boards or array with ship placements', () => {
-      expect(Board.verifyBoard(board)).toBe(true);
-      expect(Board.verifyBoard([
+      expect(Board.verifySetup(board)).toBe(true);
+      expect(Board.verifySetup([
         {
           pos: [2, 3],
           ship: new Ship(shipTypes[0]),
@@ -37,7 +40,7 @@ describe('Board', () => {
           ship: new Ship(shipTypes[0]),
         },
       ])).toBe(false);
-      expect(Board.verifyBoard([
+      expect(Board.verifySetup([
         {
           pos: [9, 9],
           ship: new Ship(shipTypes[0]),
@@ -62,26 +65,6 @@ describe('Board', () => {
   });
 
   describe('instance', () => {
-    let ships;
-    let shipTypes;
-
-    beforeEach(() => {
-      shipTypes = Ship.types();
-      ships = [
-        new Ship(shipTypes[0]),
-        new Ship(shipTypes[0]),
-      ];
-    });
-
-    it('can be used to place a ship', () => {
-      board.place([2, 3], ships[0]);
-      expect(board.ships().length).toBe(1);
-      board.place([5, 6], ship[1]);
-      expect(board.ships().length).toBe(2);
-      expect(board.ships()[0]).toBe(ships[0]);
-      expect(board.ships()[1]).toBe(ships[1]);
-    });
-
     /* [2,3] - 2; [5,6] -2 [row, col]
       [[- - - - - - - - - -]
        [- - o o o o - - - -]
@@ -95,7 +78,7 @@ describe('Board', () => {
        [- - - - - - - - - -]]
      */
     it('can return current state of itself', () => {
-      expect(board.currentState()).toBeEqual([
+      expect(board.state()).toBeEqual([
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -109,14 +92,103 @@ describe('Board', () => {
       ]);
     });
 
-    it('can be casted to string', () => {
+    it('can return revealed state of itself', () => {
+      expect(board.revealed()).toBeEqual([
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      ]);
+    });
+
+    it('can arrange ships randomly', () => {
+      let seed = 0;
+      board.random([
+        new Ship(shipTypes[0]),
+        new Ship(shipTypes[0]),
+        new Ship(shipTypes[0]),
+        new Ship(shipTypes[0]),
+        new Ship(shipTypes[1]),
+        new Ship(shipTypes[1]),
+        new Ship(shipTypes[1]),
+        new Ship(shipTypes[2]),
+        new Ship(shipTypes[2]),
+        new Ship(shipTypes[3]),
+      ], seed);
+
+      expect(Board.verifySetup(board)).toBe(true);
+    });
+
+    it('can be casted to a string', () => {
       expect(board.toString()).toBeEqual(
         ((new Array(10)).fill('[-, -, -, -, -, -, -, -, -, -]')).join('\n')
       );
     });
 
-    it('can return history of hits', () => {
-      board.hits().toBeEqual([]);
+    describe('can be used to place a ship and it', () => {
+      let ships;
+      let shipTypes;
+
+      beforeEach(() => {
+        shipTypes = Ship.types();
+        ships = [
+          new Ship(shipTypes[0]),
+          new Ship(shipTypes[0]),
+        ];
+        board.launch([2, 3], ships[0]);
+      });
+
+      it('can add an another ship', () => {
+        expect(board.launch([5, 6], ships[1])).toBe(true);
+        expect(board.ships().length).toBe(2);
+        expect(board.ships()[0]).toBe(ships[0]);
+        expect(board.ships()[1]).toBe(ships[1]);
+      });
+
+      it('cannot add an another ship in forbidden location', () => {
+        expect(board.launch([10, 10], ships[1])).toBe(false);
+        expect(board.launch([2, 3], ships[1])).toBe(false);
+        expect(board.launch([2, 4], ships[1])).toBe(false);
+        expect(board.ships().length).toBe(1);
+      });
+
+      it('can perform a shoot and return outcome of the try if the shoot was missed', () => {
+        expect(board.shoot([5, 6])).toBe(WATER);
+      });
+
+      it('can perform couple shoots (hit and water) and save them in the local history', () => {
+        expect(board.shoot([5, 6])).toBe(WATER);
+        expect(board.shoot([7, 8])).toBe(WATER);
+        expect(board.shoot([2, 4])).toBe(HIT);
+        expect(board.shoot([5, 5])).toBe(WATER);
+        expect(board.history()).toBeEqual([
+          {
+            result: WATER,
+            pos: [5, 6],
+          }, {
+            result: WATER,
+            pos: [7, 8],
+          }, {
+            result: HIT,
+            pos: [2, 4],
+          }, {
+            result: WATER,
+            pos: [5, 5],
+          },
+        ]);
+      });
+
+      it('can perform 2 hits and sink a ship', () => {
+        expect(board.shoot([2, 3])).toBe(HIT);
+        expect(board.shoot([2, 4])).toBe(HIT);
+        expect(ships[0].state()).toBe(SUNKEN);
+      });
     });
   });
 });

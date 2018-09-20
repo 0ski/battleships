@@ -1,12 +1,12 @@
-const CELL_TYPES = {
+const RESULTS = {
   UNREVEALED: 0,
   WATER: 1,
   HIT: 2,
 };
 
 class Board {
-  static cellTypes() {
-    return CELL_TYPES;
+  static results() {
+    return RESULTS;
   }
 }
 
