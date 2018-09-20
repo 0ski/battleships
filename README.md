@@ -7,9 +7,14 @@ This is standard battleship game, implemented in JavaScript, in web browser envi
 * [x] Figure out AI for:
   - [x] placing ships on the board
   - [x] shooting tactics
-* [ ] Setup the project
-  - [ ] Generate boilerplate code
-* [ ] Create BE and API
+* [x] Setup the project
+  - [x] Generate boilerplate code
+* [x] Create BE and API
+  - [ ] Models and tests for
+    * [ ] Game
+    * [ ] Player
+    * [ ] Board
+    * [ ] Ship
   - [ ] Storage and data structure for boards
   - [ ] Status of the game
   - [ ] Room for games
@@ -17,7 +22,7 @@ This is standard battleship game, implemented in JavaScript, in web browser envi
   - [ ] API for setting up boards (with collision verification)
   - [ ] API for shooting and sinking ships
   - [ ] API for player's turns
-  - [ ] API for defining AIs (board setup, shooting tactics)
+  - [ ] API for defining (external) AIs (board setup, shooting tactics)
   - [ ] Error handling done via returned values or callbacks, without thrown exceptions
 * [ ] Create FE
   - [ ] Main menu
