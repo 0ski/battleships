@@ -7,6 +7,8 @@ This is standard battleship game, implemented in JavaScript, in web browser envi
 * [x] Figure out AI for:
   - [x] placing ships on the board
   - [x] shooting tactics
+* [ ] Setup the project
+  - [ ] Generate boilerplate code
 * [ ] Create BE and API
   - [ ] Storage and data structure for boards
   - [ ] Status of the game
