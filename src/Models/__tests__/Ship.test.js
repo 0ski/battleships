@@ -67,7 +67,7 @@ describe('Ship', () => {
     it('can be sunken', () => {
       ship.sink();
       expect(ship.state()).toBe(SUNKEN);
-    })
+    });
   });
 
 });
