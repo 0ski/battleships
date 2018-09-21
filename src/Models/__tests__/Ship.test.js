@@ -41,7 +41,7 @@ describe('Ship', () => {
     let type;
 
     beforeEach(() => {
-      type = types[0];
+      type = types[1];
       ship = new Ship(type);
     });
 
@@ -64,9 +64,25 @@ describe('Ship', () => {
       expect(ship.state()).toBe(FLOATING);
     });
 
-    it('can be sunken', () => {
+    it('has initial value of hitpoints equals to its size', () => {
+      expect(ship.hitpoints()).toBe(ship.size());
+    });
+
+    it('can be hit and lose hitpoint if so', () => {
+      expect(ship.hit()).toBe(ship.size() - 1);
+      expect(ship.hitpoints()).toBe(ship.size() - 1);
+    });
+
+    it('can be hit till it goes down', () => {
+      expect(ship.hit()).toBe(ship.size() - 1);
+      expect(ship.hit()).toBe(0);
+      expect(ship.state()).toBe(SUNKEN);
+    });
+
+    it('can be sunken instantly', () => {
       ship.sink();
       expect(ship.state()).toBe(SUNKEN);
+      expect(ship.hitpoints()).toBe(0);
     });
   });
 

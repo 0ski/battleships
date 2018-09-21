@@ -46,7 +46,7 @@ describe('Board', () => {
       expect(Board.verifySetup([
         {
           pos: [9, 9],
-          ship: new Ship(SHIP_TYPES[0]),
+          ship: new Ship(SHIP_TYPES[1]),
         },
       ])).toBe(false);
     });
@@ -99,7 +99,7 @@ describe('Board', () => {
     });
 
     it('can return revealed state of itself', () => {
-      expect(board.revealed()).toEqual([
+      expect(board.setup()).toEqual([
         [WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER],
         [WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER],
         [WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER, WATER],
@@ -113,9 +113,10 @@ describe('Board', () => {
       ]);
     });
 
-    it('can arrange ships randomly', () => {
+    it('can arrange ships randomly, with given seed', () => {
       let seed = 0;
-      board.random([
+      let keepShape = false;
+      let isPossible = board.launchRandomly([
         new Ship(SHIP_TYPES[0]),
         new Ship(SHIP_TYPES[0]),
         new Ship(SHIP_TYPES[0]),
@@ -126,9 +127,139 @@ describe('Board', () => {
         new Ship(SHIP_TYPES[2]),
         new Ship(SHIP_TYPES[2]),
         new Ship(SHIP_TYPES[3]),
-      ], seed);
+      ], {
+        seed,
+        keepShape,
+      });
+
+      let newBoard = new Board();
+      let isPossible2 = newBoard.launchRandomly([
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[3]),
+      ], {
+        seed,
+        keepShape,
+      });
 
       expect(Board.verifySetup(board)).toBe(true);
+      expect(Board.verifySetup(newBoard)).toBe(true);
+
+      expect(board.setup()).toEqual(newBoard.setup());
+    });
+
+    it('can arrange ships randomly, with given seed, sink all the ships, with hitting all cells' +
+        'and print pretty setup with pretty end status, status and setup must equal', () => {
+      let seed = 5;
+      let keepShape = false;
+      let ships = [
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[3]),
+      ];
+      let isPossible = board.launchRandomly(ships, {
+        seed,
+        keepShape,
+      });
+
+      let dim = board.dim();
+      let [totalCol, totalRow] = dim;
+
+      for (let col = 0; col < totalCol; col++) {
+        for (let row = 0; row < totalRow; row++) {
+          board.shoot([col, row]);
+        }
+      }
+
+      expect(board.toString()).toBe(board.setupToString());
+    });
+
+    it('cannot add the same ship instance twice', () => {
+      let sloop = new Ship(SHIP_TYPES[0]);
+
+      expect(board.launch([0, 0], sloop)).toBe(true);
+      expect(board.launch([9, 9], sloop)).toBe(false);
+    });
+
+    it('can remove the ship instance from board and launch it again', () => {
+      let sloop = new Ship(SHIP_TYPES[0]);
+
+      expect(board.launch([0, 0], sloop)).toBe(true);
+      expect(board.remove(sloop)).toBe(sloop);
+      expect(board.launch([9, 9], sloop)).toBe(true);
+    });
+
+    describe('can arrange ships sticking to corners and', () => {
+      let sloop;
+      let brig;
+      let frigate;
+      let galleon;
+
+      beforeEach(() => {
+        sloop = new Ship(SHIP_TYPES[0]);
+        brig = new Ship(SHIP_TYPES[1]);
+        frigate = new Ship(SHIP_TYPES[2]).rotate();
+        galleon = new Ship(SHIP_TYPES[3]).rotate();
+        board = new Board();
+
+        expect(board.launch([9, 9], sloop)).toBe(true);
+        expect(board.launch([0, 9], brig)).toBe(true);
+        expect(board.launch([0, 0], frigate)).toBe(true);
+        expect(board.launch([9, 0], galleon)).toBe(true);
+      });
+
+      it('print pretty and correct setup', () => {
+        expect(board.setupToString()).toBe(['[ X ~ ~ ~ ~ ~ ~ ~ ~ X ]',
+                                            '[ X ~ ~ ~ ~ ~ ~ ~ ~ X ]',
+                                            '[ X ~ ~ ~ ~ ~ ~ ~ ~ X ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ X ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ]',
+                                            '[ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ]',
+                                            '[ X X ~ ~ ~ ~ ~ ~ ~ X ]',
+                                          ].join('\n'));
+      });
+
+      it('hit them to get them all and mark state correctly', () => {
+        expect(board.shoot([9, 9])).toBe(HIT); //sloop
+        expect(board.shoot([0, 9])).toBe(HIT); //brig
+        expect(board.shoot([1, 9])).toBe(HIT); //brig
+        expect(board.shoot([0, 0])).toBe(HIT); //frigate
+        expect(board.shoot([0, 1])).toBe(HIT); //frigate
+        expect(board.shoot([0, 2])).toBe(HIT); //frigate
+        expect(board.shoot([9, 0])).toBe(HIT); //galleon
+        expect(board.shoot([9, 1])).toBe(HIT); //galleon
+        expect(board.shoot([9, 2])).toBe(HIT); //galleon
+        expect(board.shoot([9, 3])).toBe(HIT); //galleon
+
+        expect(board.toString()).toBe(['[ X ~ - - - - - - ~ X ]',
+                                            '[ X ~ - - - - - - ~ X ]',
+                                            '[ X ~ - - - - - - ~ X ]',
+                                            '[ ~ ~ - - - - - - ~ X ]',
+                                            '[ - - - - - - - - ~ ~ ]',
+                                            '[ - - - - - - - - - - ]',
+                                            '[ - - - - - - - - - - ]',
+                                            '[ - - - - - - - - - - ]',
+                                            '[ ~ ~ ~ - - - - - ~ ~ ]',
+                                            '[ X X ~ - - - - - ~ X ]',
+                                          ].join('\n'));
+      });
     });
 
     // '-' UNREVEALED
@@ -151,6 +282,20 @@ describe('Board', () => {
           new Ship(SHIP_TYPES[0]),
         ];
         board.launch([2, 3], ships[0]);
+      });
+
+      it('can sink it down instantly and mark fields around it', () => {
+        expect(board.sinkShip(ships[0])).toBe(true);
+        expect(board.state()[3][2]).toBe(HIT);
+        expect(board.state()[2][2]).toBe(WATER); //above
+        expect(board.state()[4][2]).toBe(WATER); //below
+        expect(board.state()[3][1]).toBe(WATER); //left
+        expect(board.state()[3][3]).toBe(WATER); //right
+        expect(ships[0].state()).toBe(SUNKEN);
+      });
+
+      it('cannot sink down a ship which is not on the it', () => {
+        expect(board.sinkShip(ships[1])).toBe(false);
       });
 
       it('can add an another ship', () => {
@@ -220,29 +365,76 @@ describe('Board', () => {
       it('can perform couple shoots (hit and water) and save them in the local history', () => {
         expect(board.shoot([5, 6])).toBe(WATER);
         expect(board.shoot([7, 8])).toBe(WATER);
-        expect(board.shoot([2, 4])).toBe(HIT);
+        expect(board.shoot([2, 3])).toBe(HIT);
         expect(board.shoot([5, 5])).toBe(WATER);
         expect(board.history()).toEqual([
           {
             result: WATER,
-            pos: [5, 6],
+            target: [5, 6],
           }, {
             result: WATER,
-            pos: [7, 8],
+            target: [7, 8],
           }, {
             result: HIT,
-            pos: [2, 4],
+            target: [2, 3],
           }, {
             result: WATER,
-            pos: [5, 5],
+            target: [5, 5],
           },
         ]);
       });
 
-      it('can perform 2 hits and sink a ship', () => {
+      it('can place another ship, perform 3 hits, sink both ships and print pretty state', () => {
+        let brig = new Ship(SHIP_TYPES[1]);
+        brig.rotate();
+
+        expect(board.launch([6, 6], brig)).toBe(true);
         expect(board.shoot([2, 3])).toBe(HIT);
-        expect(board.shoot([2, 4])).toBe(HIT);
+        expect(board.shoot([6, 6])).toBe(HIT);
+        expect(board.shoot([6, 7])).toBe(HIT);
         expect(ships[0].state()).toBe(SUNKEN);
+        expect(brig.state()).toBe(SUNKEN);
+
+        expect(board.toString()).toBe(['[ - - - - - - - - - - ]',
+                                        '[ - - - - - - - - - - ]',
+                                        '[ - ~ ~ ~ - - - - - - ]',
+                                        '[ - ~ X ~ - - - - - - ]',
+                                        '[ - ~ ~ ~ - - - - - - ]',
+                                        '[ - - - - - ~ ~ ~ - - ]',
+                                        '[ - - - - - ~ X ~ - - ]',
+                                        '[ - - - - - ~ X ~ - - ]',
+                                        '[ - - - - - ~ ~ ~ - - ]',
+                                        '[ - - - - - - - - - - ]',
+                                      ].join('\n'));
+      });
+
+      it('can place another 3 ships, sink all of them, and print pretty state', () => {
+        let brig = new Ship(SHIP_TYPES[1]);
+        brig.rotate();
+        let frigate = new Ship(SHIP_TYPES[2]);
+        let galleon = new Ship(SHIP_TYPES[3]);
+        galleon.rotate();
+
+        expect(board.launch([6, 6], brig)).toBe(true);
+        expect(board.launch([0, 8], frigate)).toBe(true);
+        expect(board.launch([0, 0], galleon)).toBe(true);
+
+        board.sinkShip(ships[0]);
+        board.sinkShip(brig);
+        board.sinkShip(frigate);
+        board.sinkShip(galleon);
+
+        expect(board.toString()).toBe(['[ X ~ - - - - - - - - ]',
+                                        '[ X ~ - - - - - - - - ]',
+                                        '[ X ~ ~ ~ - - - - - - ]',
+                                        '[ X ~ X ~ - - - - - - ]',
+                                        '[ ~ ~ ~ ~ - - - - - - ]',
+                                        '[ - - - - - ~ ~ ~ - - ]',
+                                        '[ - - - - - ~ X ~ - - ]',
+                                        '[ ~ ~ ~ ~ - ~ X ~ - - ]',
+                                        '[ X X X ~ - ~ ~ ~ - - ]',
+                                        '[ ~ ~ ~ ~ - - - - - - ]',
+                                      ].join('\n'));
       });
     });
   });

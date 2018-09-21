@@ -40,11 +40,29 @@ class Ship {
       this._size = 0;
     }
 
+    this._hitpoints = this._size;
     this._state = STATES.GARAGE;
     this._shape = SHAPES.HORIZONTAL;
   }
 
+  hitpoints() {
+    return this._hitpoints;
+  }
+
+  hit() {
+    if (this._hitpoints > 0) {
+      this._hitpoints--;
+    }
+
+    if (this._hitpoints === 0) {
+      this.sink();
+    }
+
+    return this._hitpoints;
+  }
+
   sink() {
+    this._hitpoints = 0;
     return this._state = STATES.SUNKEN;
   }
 
@@ -80,6 +98,7 @@ class Ship {
 
   rotate() {
     this._shape = (this._shape + 1) % 2;
+    return this;
   }
 }
 
