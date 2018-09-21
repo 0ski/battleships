@@ -1,5 +1,9 @@
+import _ from 'lodash';
+import seedrandom from 'seedrandom';
+
 import Player from '../Player';
 import Game from '../Game';
+import Ship from '../Ship';
 
 /*
 Game flow:
@@ -34,18 +38,32 @@ Game flow:
 describe('Game', () => {
   let game;
   let player1;
-  let stateEnums = Game.states();
+  const STATE_ENUMS = Game.states();
+  const SHIP_TYPES = Ship.types();
+
   let {
     UNREADY,
     READY,
     PLACEMENT,
     BATTLE,
     FINISHED,
-  } = stateEnums;
+  } = STATE_ENUMS;
 
   beforeEach(() => {
-    game = new Game();
+    game = new Game([
+      new Ship(SHIP_TYPES[0]),
+      new Ship(SHIP_TYPES[0]),
+      new Ship(SHIP_TYPES[0]),
+      new Ship(SHIP_TYPES[0]),
+      new Ship(SHIP_TYPES[1]),
+      new Ship(SHIP_TYPES[1]),
+      new Ship(SHIP_TYPES[1]),
+      new Ship(SHIP_TYPES[2]),
+      new Ship(SHIP_TYPES[2]),
+      new Ship(SHIP_TYPES[3]),
+    ]);
     player1 = new Player();
+    player1.ready = () => true;
   });
 
   describe('class', () => {
@@ -54,7 +72,7 @@ describe('Game', () => {
     });
 
     it('returns states ENUMs', () => {
-      expect(stateEnums).not.toBe(undefined);
+      expect(STATE_ENUMS).not.toBe(undefined);
     });
   });
 
@@ -78,6 +96,7 @@ describe('Game', () => {
 
     it('can add multiple players', () => {
       let player2 = new Player();
+      player2.ready = () => true;
       game.add(player1);
       game.add(player2);
       expect(game.players().length).toBe(2);
@@ -107,13 +126,26 @@ describe('Game', () => {
         game.add(player2);
       });
 
+      it('can ask players if they are ready', () => {
+        const spy1 = jest.spyOn(player1, 'ready');
+        const spy2 = jest.spyOn(player2, 'ready');
+
+        game.ready();
+
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
+      });
+
       it('can move to READY state and start battle with ship placement stage', () => {
+        expect(game.ready()).toBe(true);
         expect(game.state()).toBe(READY);
         expect(game.start()).toBe(true);
         expect(game.state()).toBe(PLACEMENT);
       });
 
       it('can give boards to both players', () => {
+        game.ready();
+
         const spy1 = jest.spyOn(player1, 'board');
         const spy2 = jest.spyOn(player2, 'board');
 
@@ -126,6 +158,8 @@ describe('Game', () => {
       });
 
       it('can call players to prepare their setup', () => {
+        game.ready();
+
         const spy1 = jest.spyOn(player1, 'setup');
         const spy2 = jest.spyOn(player2, 'setup');
 
@@ -135,25 +169,93 @@ describe('Game', () => {
         expect(spy2).toHaveBeenCalled();
       });
 
-      it('can progress to the next stage when both players complete their setup correctly' +
-            ' with given array of ships', () => {
+      it('gives 3 tries to properly setup a board before concluding the game', () => {
+        let spy = jest.spyOn(game, 'verify');
+        game.ready();
+        game.start();
+        expect(spy).toHaveBeenCalledTimes(6);
+        expect(game.state()).toBe(FINISHED);
+        expect(game.losers()).toBeEqual([
+          player1,
+          player2,
+        ]);
+      });
 
+      let setup = () => {
         player1.setup = (ships) => {
           let board = player1.board();
-          board.launchRandomly(ships);
+          board.launchRandomly(ships, { seed: 0 });
 
-          return true;
+          return board;
         };
 
         player2.setup = (ships) => {
           let board = player2.board();
-          board.launchRandomly(ships);
+          board.launchRandomly(ships, { seed: 0 });
 
-          return true;
+          return board;
+        };
+      };
+
+      it('can progress to the next stage when both players complete their setup correctly' +
+            ' with given array of ships', () => {
+
+        let spy = jest.spyOn(game, 'verify');
+
+        game.ready();
+        setup();
+        game.start();
+
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(game.state()).toBe(BATTLE);
+      });
+
+      it('can progress to BATTLE state and start taking turns', () => {
+        game.ready();
+        setup();
+        game.start();
+        player1.turn = () => [5, 5];
+        let spy = jest.spyOn(player1, 'turn');
+
+        expect(game.currentPlayer()).toBe(player1);
+        game.turn();
+        expect(game.currentPlayer()).toBe(player2);
+        expect(spy).toHaveBeenCalled();
+
+      });
+
+      it('can pass all the stages and take the whole battle, finish it at some point', () => {
+
+        setup();
+        let random = seedrandom(0);
+        let turn = (game, opponentsBoardState) => {
+          let state = opponentsBoardState;
+
+          let available = state.map(
+            (row, rowId) => row.map(
+              (cell, colId) => cell === UNREVEALED ? [colId, rowId] : null
+            )
+          );
+
+          available = _.flatten(available).filter(item => item !== null);
+          let pos = available[Math.floor(random() * 229) % available.length];
+
+          game.shoot(pos);
         };
 
+        player1.turn = turn;
+        player2.turn = turn;
+
+        game.ready();
         game.start();
-        expect(game.state()).toBe(PLACEMENT);
+
+        while (game.state() !== FINISHED) {
+          game.turn();
+        }
+
+        expect(game.losers()[0]).toEqual(player1);
+        expect(game.winners()[0]).toEqual(player2);
+
       });
     });
   });
