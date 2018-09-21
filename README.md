@@ -13,8 +13,8 @@ This is standard battleship game, implemented in JavaScript, in web browser envi
   - [ ] Models and tests for
     * [ ] Game
     * [ ] Player
-    * [ ] Board
-    * [ ] Ship
+    * [x] Board
+    * [x] Ship
   - [x] Storage and data structure for boards
   - [ ] Status of the game
   - [ ] Room for games
@@ -34,7 +34,7 @@ This is standard battleship game, implemented in JavaScript, in web browser envi
   - [ ] Stats for AIs
 * [ ] Random board set up for AI and players
   - [x] Function to check if a board with given setup is valid
-  - [ ] Start from up-left corner and move one cell by one, full right and then down. Check for each ship type if it could be placed there vertically or horizontally List all available starting points for each ship type and each position (vertical/horizontal) Randomly pick a position and starting cell if it is possible Once a ship is placed remove starting points from availability list. If there is no place to put remaining ships, start the process over again
+  - [x] Start from up-left corner and move one cell by one, full right and then down. Check for each ship type if it could be placed there vertically or horizontally List all available starting points for each ship type and each position (vertical/horizontal) Randomly pick a position and starting cell if it is possible Once a ship is placed remove starting points from availability list. If there is no place to put remaining ships, start the process over again
   - [ ] Use probability estimations for better ship placement
 * [ ] Create easy AI (random shoots)
 * [ ] Create medium AI (random shoots, when it hits and do not sink the ship, continue shooting left/right or up/down)

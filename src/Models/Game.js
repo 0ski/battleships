@@ -1,9 +1,15 @@
+const UNREADY = -1;
+const READY = 0;
+const PLACEMENT = 1;
+const BATTLE = 2;
+const FINISHED = 3;
+
 const STATE_ENUMS = {
-  UNREADY: -1,
-  READY: 0,
-  PLACEMENT: 1,
-  BATTLE: 2,
-  FINISHED: 3,
+  UNREADY,
+  READY,
+  PLACEMENT,
+  BATTLE,
+  FINISHED,
 };
 
 class Game {
