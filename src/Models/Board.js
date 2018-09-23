@@ -237,6 +237,7 @@ class Board {
     let ship;
     let hitPointsLeft;
     let result;
+    let sink = false;
 
     if (state[targetRow][targetCol] === UNREVEALED) {
       result = state[targetRow][targetCol] = setup[targetRow][targetCol];
@@ -246,6 +247,7 @@ class Board {
 
         if (hitPointsLeft === 0) {
           this.sinkShip(ship);
+          sink = true;
         }
       }
     } else {
@@ -255,9 +257,15 @@ class Board {
     history.push({
       target,
       result,
+      sink,
+      ship,
     });
 
-    return result;
+    return {
+      result,
+      sink,
+      ship,
+    };
   }
 
   sinkShip(ship) {

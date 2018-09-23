@@ -294,7 +294,7 @@ describe('Game', () => {
         ]);
       });
 
-      fit('can allow player to shoot couple times if she/he hit a ship', async () => {
+      it('can allow player to shoot couple times if she/he hit a ship', async () => {
         function* gen() {
           yield [0, 1];
           yield [0, 2];
@@ -320,8 +320,12 @@ describe('Game', () => {
         expect(_.last(player2.ships()).hitpoints()).toBe(0);
       });
 
-      xit('can pass all the stages and take the whole battle, finish it at some point',
+      fit('can pass all the stages and take the whole battle, finish it at some point',
         async () => {
+
+        //Both players have the same boards, and make the same moves, so player1 always wins
+        let spy1 = jest.spyOn(player1, 'win');
+        let spy2 = jest.spyOn(player2, 'lose');
 
         let random = seedrandom(0);
         let turn = opponents => {
@@ -348,9 +352,6 @@ describe('Game', () => {
         await game.ready();
         await game.start();
 
-        console.log(player1.board()._shipsBoard);
-        console.log(player2.board()._shipsBoard);
-
         let i = 0;
 
         while (game.state() !== FINISHED && i < 201) {
@@ -360,15 +361,8 @@ describe('Game', () => {
 
         expect(i).toBeLessThan(201);
 
-        player1.lose = player2.lose = player1.win = player2.win = () => undefined;
-
-        let spy1 = jest.spyOn(player1, 'lose');
-        let spy2 = jest.spyOn(player2, 'win');
-
-        game.finish();
-
-        expect(game.losers()[0]).toEqual(player1);
-        expect(game.winners()[0]).toEqual(player2);
+        expect(game.winners()[0]).toEqual(player1);
+        expect(game.losers()[0]).toEqual(player2);
         expect(spy1).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
 

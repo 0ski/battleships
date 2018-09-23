@@ -237,16 +237,56 @@ describe('Board', () => {
       });
 
       it('hit them to get them all and mark state correctly', () => {
-        expect(board.shoot([9, 9])).toBe(HIT); //sloop
-        expect(board.shoot([0, 9])).toBe(HIT); //brig
-        expect(board.shoot([1, 9])).toBe(HIT); //brig
-        expect(board.shoot([0, 0])).toBe(HIT); //frigate
-        expect(board.shoot([0, 1])).toBe(HIT); //frigate
-        expect(board.shoot([0, 2])).toBe(HIT); //frigate
-        expect(board.shoot([9, 0])).toBe(HIT); //galleon
-        expect(board.shoot([9, 1])).toBe(HIT); //galleon
-        expect(board.shoot([9, 2])).toBe(HIT); //galleon
-        expect(board.shoot([9, 3])).toBe(HIT); //galleon
+        expect(board.shoot([9, 9])).toEqual({
+          result: HIT,
+          sink: true,
+          ship: sloop,
+        }); //sloop
+        expect(board.shoot([0, 9])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: brig,
+        }); //brig
+        expect(board.shoot([1, 9])).toEqual({
+          result: HIT,
+          sink: true,
+          ship: brig,
+        }); //brig
+        expect(board.shoot([0, 0])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: frigate,
+        }); //frigate
+        expect(board.shoot([0, 1])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: frigate,
+        }); //frigate
+        expect(board.shoot([0, 2])).toEqual({
+          result: HIT,
+          sink: true,
+          ship: frigate,
+        }); //frigate
+        expect(board.shoot([9, 0])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: galleon,
+        }); //galleon
+        expect(board.shoot([9, 1])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: galleon,
+        }); //galleon
+        expect(board.shoot([9, 2])).toEqual({
+          result: HIT,
+          sink: false,
+          ship: galleon,
+        }); //galleon
+        expect(board.shoot([9, 3])).toEqual({
+          result: HIT,
+          sink: true,
+          ship: galleon,
+        }); //galleon
 
         expect(board.toString()).toBe(['[ X ~ - - - - - - ~ X ]',
                                             '[ X ~ - - - - - - ~ X ]',
@@ -359,27 +399,55 @@ describe('Board', () => {
       });
 
       it('can perform a shoot and return outcome of the try if the shoot was missed', () => {
-        expect(board.shoot([5, 6])).toBe(WATER);
+        expect(board.shoot([5, 6])).toEqual({
+          result: WATER,
+          ship: undefined,
+          sink: false,
+        });
       });
 
       it('can perform couple shoots (hit and water) and save them in the local history', () => {
-        expect(board.shoot([5, 6])).toBe(WATER);
-        expect(board.shoot([7, 8])).toBe(WATER);
-        expect(board.shoot([2, 3])).toBe(HIT);
-        expect(board.shoot([5, 5])).toBe(WATER);
+        expect(board.shoot([5, 6])).toEqual({
+          result: WATER,
+          ship: undefined,
+          sink: false,
+        });
+        expect(board.shoot([7, 8])).toEqual({
+          result: WATER,
+          ship: undefined,
+          sink: false,
+        });
+        expect(board.shoot([2, 3])).toEqual({
+          result: HIT,
+          ship: ships[0],
+          sink: true,
+        });
+        expect(board.shoot([5, 5])).toEqual({
+          result: WATER,
+          ship: undefined,
+          sink: false,
+        });
         expect(board.history()).toEqual([
           {
             result: WATER,
             target: [5, 6],
+            ship: undefined,
+            sink: false,
           }, {
             result: WATER,
             target: [7, 8],
+            ship: undefined,
+            sink: false,
           }, {
             result: HIT,
             target: [2, 3],
+            ship: ships[0],
+            sink: true,
           }, {
             result: WATER,
             target: [5, 5],
+            ship: undefined,
+            sink: false,
           },
         ]);
       });
@@ -389,9 +457,21 @@ describe('Board', () => {
         brig.rotate();
 
         expect(board.launch([6, 6], brig)).toBe(true);
-        expect(board.shoot([2, 3])).toBe(HIT);
-        expect(board.shoot([6, 6])).toBe(HIT);
-        expect(board.shoot([6, 7])).toBe(HIT);
+        expect(board.shoot([2, 3])).toEqual({
+          result: HIT,
+          ship: ships[0],
+          sink: true,
+        });
+        expect(board.shoot([6, 6])).toEqual({
+          result: HIT,
+          ship: brig,
+          sink: false,
+        });
+        expect(board.shoot([6, 7])).toEqual({
+          result: HIT,
+          ship: brig,
+          sink: true,
+        });
         expect(ships[0].state()).toBe(SUNKEN);
         expect(brig.state()).toBe(SUNKEN);
 

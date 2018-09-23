@@ -33,6 +33,10 @@ class Player {
     return this._ships;
   }
 
+  floatingShips() {
+    return this._ships.filter(ship => ship.hitpoints() > 0);
+  }
+
   setup(ships) {
     if (Array.isArray(ships)) {
       this._ships = ships;

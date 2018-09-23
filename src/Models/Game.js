@@ -236,7 +236,7 @@ class Game {
       return false;
     }
 
-    let result = player.board().shoot(target);
+    let { result, sink } = player.board().shoot(target);
 
     this._history.push({
       shootingPlayer: currentPlayer,
@@ -244,11 +244,18 @@ class Game {
       turn,
       target,
       result,
+      sink,
     });
 
     if (result === WATER) {
       this._nextTurn();
     } else if (result === HIT) {
+
+      if (sink && player.floatingShips().length === 0) {
+        this.finish([currentPlayer], [player]);
+        return;
+      }
+
       return this.turn();
     }
 
