@@ -4,6 +4,7 @@ import Ship from './Ship';
 import Board from './Board';
 
 const SHIP_TYPES = Ship.types();
+const { UNREVEALED, WATER, HIT } = Board.results();
 
 const UNREADY = -1;
 const READY = 0;
@@ -52,6 +53,7 @@ class Game {
     this._started = false;
     this._winners = [];
     this._losers = [];
+    this._history = [];
     this._turn = 0;
   }
 
@@ -107,7 +109,11 @@ class Game {
     return this._state;
   }
 
-  ready() {
+  history() {
+    return this._history;
+  }
+
+  async ready() {
     let players = this._players;
     let promises;
 
@@ -115,9 +121,8 @@ class Game {
       return false;
     } else {
       promises = players.map(player => player.ready());
-      return Promise.all(promises).then(() => {
-        this._changeState(READY);
-      });
+      await Promise.all(promises);
+      this._changeState(READY);
     }
   }
 
@@ -133,7 +138,7 @@ class Game {
     return this._shipTypes.map(type => new Ship(type));
   }
 
-  start() {
+  async start() {
     let players = this._players;
     let boards;
     let promises;
@@ -143,7 +148,7 @@ class Game {
     } else {
       this._changeState(SETUP);
       this._assignBoardsToPlayers();
-      return this.setup(players);
+      return await this.setup(players);
     }
   }
 
@@ -171,7 +176,7 @@ class Game {
     return attempts;
   }
 
-  setup(players) {
+  async setup(players) {
     let attempts = Array.from(this._attempt(players));
 
     if (_.values(attempts).some(attempt => attempt[1] > 3)) {
@@ -184,26 +189,26 @@ class Game {
       return false;
     }
 
-    let promises = players.map(player => player.setup(this._createShips()));
-    return Promise.all(promises).then(() => {
-      let verdicts = players.map(player => this.verify(player.board()));
-      let allGood = verdicts.every(verdict => verdict);
+    players.map(player => player.ships(this._createShips()));
+    let promises = players.map(player => player.setup(player.ships()));
 
-      if (allGood) {
-        this._changeState(BATTLE);
-        return this._started = true;
-      } else {
-        players = players.reduce((players, player, i) => {
-          if (!verdicts[i]) {
-            players.push(player);
-          }
+    await Promise.all(promises);
+    let verdicts = players.map(player => this.verify(player.board()));
 
-          return players;
-        }, []);
+    if (verdicts.every(verdict => verdict)) {
+      this._changeState(BATTLE);
+      return this._started = true;
+    } else {
+      players = players.reduce((players, player, i) => {
+        if (!verdicts[i]) {
+          players.push(player);
+        }
 
-        return this.setup(players);
-      }
-    });
+        return players;
+      }, []);
+
+      return this.setup(players);
+    }
   }
 
   verify(board) {
@@ -214,12 +219,40 @@ class Game {
     this._turn++;
   }
 
-  turn() {
-    let player = this.currentPlayer();
+  async turn() {
+    let currentPlayer = this.currentPlayer();
+    let opponents = this.players().filter(pl => pl !== currentPlayer);
+    let attempts = 1;
+    let turn = this.turnNo();
+    let { player, target } = await currentPlayer.turn(opponents);
 
-    return Promise.all(player.turn()).then(() => {
-      this._nextTurn();
+    while (!Board.verifyShootingTarget(player.board(), target) && attempts < 3) {
+      ({ player, target } = await currentPlayer.turn(opponents));
+      attempts++;
+    }
+
+    if (attempts > 2) {
+      this.finish(opponents, [currentPlayer]);
+      return false;
+    }
+
+    let result = player.board().shoot(target);
+
+    this._history.push({
+      shootingPlayer: currentPlayer,
+      recievingPlayer: player,
+      turn,
+      target,
+      result,
     });
+
+    if (result === WATER) {
+      this._nextTurn();
+    } else if (result === HIT) {
+      return this.turn();
+    }
+
+    return result;
   }
 
   finish(winners, losers) {

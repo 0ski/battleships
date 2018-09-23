@@ -32,6 +32,16 @@ class Board {
     return valid;
   }
 
+  static verifyShootingTarget(board, target) {
+    if (!Array.isArray(target)) {
+      return false;
+    }
+
+    let [targetCol, targetRow] = target;
+    return Board.verifyTarget(board, target) &&
+            board.state()[targetRow][targetCol] === UNREVEALED;
+  }
+
   static verifyShipPosition(board, target, ship) {
     let size = ship.size();
     let orientation = ship.shape();

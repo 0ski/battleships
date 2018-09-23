@@ -25,6 +25,14 @@ class Player {
     return this._board;
   }
 
+  ships(ships) {
+    if (Array.isArray(ships)) {
+      this._ships = ships;
+    }
+
+    return this._ships;
+  }
+
   setup(ships) {
     if (Array.isArray(ships)) {
       this._ships = ships;

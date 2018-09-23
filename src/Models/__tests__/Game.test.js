@@ -42,7 +42,6 @@ Game flow:
  *       game.start() // players[].board(board)         SETUP
  *                    // players[].setup(ships)         BATTLE
  *       game.turn() // player.turn()                   BATTLE
- *                   // game.shoot(pos)                 BATTLE
  *       game.finish() // player.win() player.lose()    FINISHED
 */
 
@@ -51,6 +50,7 @@ describe('Game', () => {
   let player1;
   const STATE_ENUMS = Game.states();
   const SHIP_TYPES = Ship.types();
+  const { UNREVEALED, WATER, HIT } = Board.results();
 
   let {
     UNREADY,
@@ -136,20 +136,20 @@ describe('Game', () => {
       let ready = game.ready();
       expect(ready).not.toBe(false);
 
-      await ready.then(() => {
-        expect(game.state()).toBe(READY);
-        let started = game.start();
-        expect(game.state()).toBe(SETUP);
-        return started.then(() => {
-          expect(game.state()).toBe(BATTLE);
-        });
-      });
+      await ready;
+      expect(game.state()).toBe(READY);
+      let started = game.start();
+      expect(game.state()).toBe(SETUP);
+      await started;
+      expect(game.state()).toBe(BATTLE);
     });
 
     describe('with two players in the game, with mocked verify functionality', () => {
       let player2;
 
       beforeEach(() => {
+        game = new Game();
+        player1 = new Player();
         player2 = new Player();
         player1.ready = player2.ready = () => true;
         game.add(player1);
@@ -170,53 +170,41 @@ describe('Game', () => {
       it('can move to READY state and start the battle with ship SETUP stage', async () => {
         let ready = game.ready();
         expect(ready instanceof Promise).toBe(true);
-        await ready.then(() => {
-          expect(game.state()).toBe(READY);
-          let start = game.start();
-          expect(start instanceof Promise).toBe(true);
-          expect(game.state()).toBe(SETUP);
-          return start.then(() => {
-            expect(game.state()).toBe(BATTLE);
-          });
-        });
+        await ready;
+        expect(game.state()).toBe(READY);
+        let start = game.start();
+        expect(start instanceof Promise).toBe(true);
+        await start;
+        expect(game.state()).toBe(BATTLE);
       });
 
       it('can give boards to both players', async () => {
-        let ready = game.ready();
-
-        await ready.then(() => {
-          const spy1 = jest.spyOn(player1, 'board');
-          const spy2 = jest.spyOn(player2, 'board');
-
-          return game.start().then(() => {
-            expect(spy1).toHaveBeenCalled();
-            expect(spy2).toHaveBeenCalled();
-            expect(player1.board() instanceof Board).toBe(true);
-            expect(player2.board() instanceof Board).toBe(true);
-          });
-        });
+        const spy1 = jest.spyOn(player1, 'board');
+        const spy2 = jest.spyOn(player2, 'board');
+        await game.ready();
+        await game.start();
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
+        expect(player1.board() instanceof Board).toBe(true);
+        expect(player2.board() instanceof Board).toBe(true);
       });
 
       it('can call players to prepare their setup', async () => {
-        let ready = game.ready();
-
-        await ready.then(() => {
-          const spy1 = jest.spyOn(player1, 'setup');
-          const spy2 = jest.spyOn(player2, 'setup');
-
-          return game.start().then(() => {
-            expect(spy1).toHaveBeenCalled();
-            expect(spy2).toHaveBeenCalled();
-          });
-        });
+        const spy1 = jest.spyOn(player1, 'setup');
+        const spy2 = jest.spyOn(player2, 'setup');
+        await game.ready();
+        await game.start();
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
       });
-
     });
 
     describe('with two players in the game', () => {
       let player2;
 
       beforeEach(() => {
+        game = new Game();
+        player1 = new Player();
         player2 = new Player();
         player1.ready = player2.ready = () => true;
         player1.setup = (ships) => {
@@ -232,6 +220,7 @@ describe('Game', () => {
 
           return board;
         };
+
         game.add(player1);
         game.add(player2);
       });
@@ -240,20 +229,16 @@ describe('Game', () => {
         game.verify = () => false;
 
         let spy = jest.spyOn(game, 'verify');
-        let ready = game.ready();
-
-        await ready.then(() => {
-          expect(game.winners()).toEqual([]);
-          expect(game.losers()).toEqual([]);
-          return game.start().then(() => {
-            expect(spy).toHaveBeenCalledTimes(6);
-            expect(game.state()).toBe(FINISHED);
-            expect(game.losers()).toEqual([
-              player1,
-              player2,
-            ]);
-          });
-        });
+        await game.ready();
+        expect(game.winners()).toEqual([]);
+        expect(game.losers()).toEqual([]);
+        await game.start();
+        expect(spy).toHaveBeenCalledTimes(6);
+        expect(game.state()).toBe(FINISHED);
+        expect(game.losers()).toEqual([
+          player1,
+          player2,
+        ]);
       });
 
       it('can progress to the next stage when both players complete their setup correctly' +
@@ -261,59 +246,86 @@ describe('Game', () => {
 
         let spy = jest.spyOn(game, 'verify');
 
-        await game.ready()
-                    .then(() => game.start())
-                    .then(()  => {
-                      expect(spy).toHaveBeenCalledTimes(2);
-                      expect(game.state()).toBe(BATTLE);
-                    });
+        await game.ready();
+        await game.start();
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(game.state()).toBe(BATTLE);
       });
 
       it('can progress to BATTLE state and start taking turns', async () => {
-        player1.turn = () => [5, 5];
-        let spy = jest.spyOn(player1, 'turn');
+        player1.turn = () => ({ target: [9, 9], player: player2 });
+        player2.turn = () => ({ target: [9, 9], player: player1 });
+        let spy1 = jest.spyOn(player1, 'turn');
+        let spy2 = jest.spyOn(player2, 'turn');
+        let result;
 
-        await game.ready()
-                    .then(() => game.start())
-                    .then(()  => {
-                      expect(game.currentPlayer()).toBe(player1);
-                      expect(game.state()).toBe(BATTLE);
-                    })
-                    .then(() => game.turn())
-                    .then(() => {
-                      expect(game.currentPlayer()).toBe(player2);
-                      expect(spy).toHaveBeenCalled();
-                    });
+        await game.ready();
+        await game.start();
+        expect(game.currentPlayer()).toBe(player1);
+        expect(game.state()).toBe(BATTLE);
+        result = await game.turn();
+        expect(result).toBe(WATER);
+        expect(game.currentPlayer()).toBe(player2);
+        result = await game.turn();
+        expect(spy1).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
       });
 
       it('can conclude the game if a player would not shoot into a valid target ' +
           '3 times in the row', async () => {
-        player1.turn = player2.turn = () => [5, 5];
+        player1.turn = player2.turn = opponents => ({ target: [9, 9], player: opponents[0] });
         let spy1 = jest.spyOn(player1, 'turn');
         let spy2 = jest.spyOn(player2, 'turn');
 
-        await game.ready()
-                    .then(() => game.start())
-                    .then(() => game.turn())
-                    .then(() => game.turn())
-                    .then(() => game.turn())
-                    .then(() => {
-                      expect(game.state()).toBe(FINISHED);
-                      expect(spy1).toHaveBeenCalledTimes(4);
-                      expect(spy2).toHaveBeenCalledTimes(1);
-                      expect(game.losers()).toEqual([
-                        player1,
-                      ]);
-                      expect(game.winners()).toEqual([
-                        player2,
-                      ]);
-                    });
+        await game.ready();
+        await game.start();
+        await game.turn(); //player1
+        await game.turn(); //player2
+        await game.turn(); //player1
+
+        expect(game.state()).toBe(FINISHED);
+        expect(spy2).toHaveBeenCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(4);
+        expect(game.losers()).toEqual([
+          player1,
+        ]);
+        expect(game.winners()).toEqual([
+          player2,
+        ]);
       });
 
-      it('can pass all the stages and take the whole battle, finish it at some point', () => {
+      fit('can allow player to shoot couple times if she/he hit a ship', async () => {
+        function* gen() {
+          yield [0, 1];
+          yield [0, 2];
+          yield [0, 3];
+          yield [0, 4];
+
+          //return [0, 5]; - that is invalid target as it's revelaed after sinking a ship
+          return [0, 6];
+        }
+
+        let play1gen = gen();
+        let play2gen = gen();
+        player1.turn = opponents => ({ target: play1gen.next().value, player: opponents[0] });
+        player2.turn = opponents => ({ target: play2gen.next().value, player: opponents[0] });
+
+        let spy = jest.spyOn(player1, 'turn');
+
+        await game.ready();
+        await game.start();
+        await game.turn();
+
+        expect(spy).toHaveBeenCalledTimes(5);
+        expect(_.last(player2.ships()).hitpoints()).toBe(0);
+      });
+
+      xit('can pass all the stages and take the whole battle, finish it at some point',
+        async () => {
+
         let random = seedrandom(0);
-        let turn = (game, opponentsBoardState) => {
-          let state = opponentsBoardState;
+        let turn = opponents => {
+          let state = opponents[0].board().state();
 
           let available = state.map(
             (row, rowId) => row.map(
@@ -324,18 +336,29 @@ describe('Game', () => {
           available = _.flatten(available).filter(item => item !== null);
           let pos = available[Math.floor(random() * 229) % available.length];
 
-          game.shoot(pos);
+          return {
+            player: opponents[0],
+            target: pos,
+          };
         };
 
         player1.turn = turn;
         player2.turn = turn;
 
-        game.ready();
-        game.start();
+        await game.ready();
+        await game.start();
 
-        while (game.state() !== FINISHED) {
-          game.turn();
+        console.log(player1.board()._shipsBoard);
+        console.log(player2.board()._shipsBoard);
+
+        let i = 0;
+
+        while (game.state() !== FINISHED && i < 201) {
+          await game.turn();
+          i++;
         }
+
+        expect(i).toBeLessThan(201);
 
         player1.lose = player2.lose = player1.win = player2.win = () => undefined;
 
