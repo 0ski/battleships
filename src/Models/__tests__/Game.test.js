@@ -4,6 +4,7 @@ import seedrandom from 'seedrandom';
 import Player from '../Player';
 import Game from '../Game';
 import Ship from '../Ship';
+import Board from '../Board';
 
 /*
 Game flow:
@@ -11,7 +12,7 @@ Game flow:
  * Game is in UNREADY state
  * If two or more players are ready, the game changes status to READY
  * Game asks players if they're ready, if both signalize 'ready', game moves to the next stage
- * Game status changes to PLACEMENT
+ * Game status changes to SETUP
  * Game adds boards to its players
  * Game calls players' functions to setup ships on the given boards
  * Game verifies boards
@@ -28,11 +29,21 @@ Game flow:
  * Note: Each Player function which is called from the Game class can return either a value
  *       or a promise
  * Note: Player functions called chronologically:
- *       isReady()
+ *       ready()
  *       board()
  *       setup()
  *       turn()
  *       finish() ?
+ * Note: Flow of the game:                              [STATE]
+ *       game = new Game({dim, shipTypes[]})            UNREADY
+ *       game.add(player1)                              UNREADY
+ *       game.add(player2)                              UNREADY
+ *       game.ready() // players[].ready()              READY
+ *       game.start() // players[].board(board)         SETUP
+ *                    // players[].setup(ships)         BATTLE
+ *       game.turn() // player.turn()                   BATTLE
+ *                   // game.shoot(pos)                 BATTLE
+ *       game.finish() // player.win() player.lose()    FINISHED
 */
 
 describe('Game', () => {
@@ -44,24 +55,26 @@ describe('Game', () => {
   let {
     UNREADY,
     READY,
-    PLACEMENT,
+    SETUP,
     BATTLE,
     FINISHED,
   } = STATE_ENUMS;
 
   beforeEach(() => {
-    game = new Game([
-      new Ship(SHIP_TYPES[0]),
-      new Ship(SHIP_TYPES[0]),
-      new Ship(SHIP_TYPES[0]),
-      new Ship(SHIP_TYPES[0]),
-      new Ship(SHIP_TYPES[1]),
-      new Ship(SHIP_TYPES[1]),
-      new Ship(SHIP_TYPES[1]),
-      new Ship(SHIP_TYPES[2]),
-      new Ship(SHIP_TYPES[2]),
-      new Ship(SHIP_TYPES[3]),
-    ]);
+    game = new Game({
+      shipTypes: [
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[0]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[1]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[2]),
+        new Ship(SHIP_TYPES[3]),
+      ],
+    });
     player1 = new Player();
     player1.ready = () => true;
   });
@@ -94,7 +107,7 @@ describe('Game', () => {
       expect(game.players().length).toBe(1);
     });
 
-    it('can add multiple players', () => {
+    it('can add and remove players', () => {
       let player2 = new Player();
       player2.ready = () => true;
       game.add(player1);
@@ -106,24 +119,40 @@ describe('Game', () => {
       expect(game.isPlayerIn(player2)).toBe(true);
     });
 
-    it('can start only after at least two players joined', () => {
+    it('can start only after at least two players joined and signalized ready', async () => {
       expect(game.start()).toBe(false);
       expect(game.state()).toBe(UNREADY);
       let player2 = new Player();
       game.add(player1);
       game.add(player2);
-      started = game.start();
-      expect(started).toBe(true);
-      expect(game.turn()).toBe(player1);
+
+      player1.ready = player2.ready = () => true;
+      player1.board = player2.board = () => true;
+      player1.setup = player2.setup = () => true;
+
+      expect(game.state()).toBe(UNREADY);
+      let ready = game.ready();
+      expect(ready).not.toBe(false);
+
+      await ready.then(() => {
+        expect(game.state()).toBe(READY);
+        let started = game.start();
+        expect(game.state()).toBe(SETUP);
+        return started.then(() => {
+          expect(game.state()).toBe(BATTLE);
+        });
+      });
     });
 
-    describe('with two players in', () => {
+    describe('with two players in the game', () => {
       let player2;
 
       beforeEach(() => {
         player2 = new Player();
+        player1.ready = player2.ready = () => true;
         game.add(player1);
         game.add(player2);
+        game.verify = () => true;
       });
 
       it('can ask players if they are ready', () => {
@@ -136,37 +165,48 @@ describe('Game', () => {
         expect(spy2).toHaveBeenCalled();
       });
 
-      it('can move to READY state and start battle with ship placement stage', () => {
-        expect(game.ready()).toBe(true);
-        expect(game.state()).toBe(READY);
-        expect(game.start()).toBe(true);
-        expect(game.state()).toBe(PLACEMENT);
+      it('can move to READY state and start the battle with ship SETUP stage', async () => {
+        let ready = game.ready();
+        expect(ready instanceof Promise).toBe(true);
+        await ready.then(() => {
+          expect(game.state()).toBe(READY);
+          let start = game.start();
+          expect(start instanceof Promise).toBe(true);
+          expect(game.state()).toBe(SETUP);
+          return start.then(() => {
+            expect(game.state()).toBe(BATTLE);
+          });
+        });
       });
 
-      it('can give boards to both players', () => {
-        game.ready();
+      it('can give boards to both players', async () => {
+        let ready = game.ready();
 
-        const spy1 = jest.spyOn(player1, 'board');
-        const spy2 = jest.spyOn(player2, 'board');
+        await ready.then(() => {
+          const spy1 = jest.spyOn(player1, 'board');
+          const spy2 = jest.spyOn(player2, 'board');
 
-        game.start();
-
-        expect(spy1).toHaveBeenCalled();
-        expect(spy2).toHaveBeenCalled();
-        expect(player1.board() instanceof Board).toBe(true);
-        expect(player2.board() instanceof Board).toBe(true);
+          return game.start().then(() => {
+            expect(spy1).toHaveBeenCalled();
+            expect(spy2).toHaveBeenCalled();
+            expect(player1.board() instanceof Board).toBe(true);
+            expect(player2.board() instanceof Board).toBe(true);
+          });
+        });
       });
 
-      it('can call players to prepare their setup', () => {
-        game.ready();
+      it('can call players to prepare their setup', async () => {
+        let ready = game.ready();
 
-        const spy1 = jest.spyOn(player1, 'setup');
-        const spy2 = jest.spyOn(player2, 'setup');
+        await ready.then(() => {
+          const spy1 = jest.spyOn(player1, 'setup');
+          const spy2 = jest.spyOn(player2, 'setup');
 
-        game.start();
-
-        expect(spy1).toHaveBeenCalled();
-        expect(spy2).toHaveBeenCalled();
+          return game.start().then(() => {
+            expect(spy1).toHaveBeenCalled();
+            expect(spy2).toHaveBeenCalled();
+          });
+        });
       });
 
       it('gives 3 tries to properly setup a board before concluding the game', () => {
@@ -225,7 +265,6 @@ describe('Game', () => {
       });
 
       it('can pass all the stages and take the whole battle, finish it at some point', () => {
-
         setup();
         let random = seedrandom(0);
         let turn = (game, opponentsBoardState) => {
@@ -253,8 +292,17 @@ describe('Game', () => {
           game.turn();
         }
 
+        player1.lose = player2.lose = player1.win = player2.win = () => undefined;
+
+        let spy1 = jest.spyOn(player1, 'lose');
+        let spy2 = jest.spyOn(player2, 'win');
+
+        game.finish();
+
         expect(game.losers()[0]).toEqual(player1);
         expect(game.winners()[0]).toEqual(player2);
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
 
       });
     });

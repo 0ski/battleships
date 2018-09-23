@@ -1,13 +1,18 @@
+import Ship from './Ship';
+import Board from './Board';
+
+const SHIP_TYPES = Ship.types();
+
 const UNREADY = -1;
 const READY = 0;
-const PLACEMENT = 1;
+const SETUP = 1;
 const BATTLE = 2;
 const FINISHED = 3;
 
 const STATE_ENUMS = {
   UNREADY,
   READY,
-  PLACEMENT,
+  SETUP,
   BATTLE,
   FINISHED,
 };
@@ -17,20 +22,40 @@ class Game {
     return STATE_ENUMS;
   }
 
-  constructor() {
+  //Standard BATTLESHIPS rules:
+  //10x10 board for following ships:
+  //four one-sized
+  //three two-sized
+  //two three-sized
+  //one four-sized
+  constructor({
+    dim=[10, 10],
+    shipTypes=[
+      SHIP_TYPES[0],
+      SHIP_TYPES[0],
+      SHIP_TYPES[0],
+      SHIP_TYPES[0],
+      SHIP_TYPES[1],
+      SHIP_TYPES[1],
+      SHIP_TYPES[1],
+      SHIP_TYPES[2],
+      SHIP_TYPES[2],
+      SHIP_TYPES[3],
+    ],
+  } = {}) {
+    this._dim = dim;
+    this._shipTypes = shipTypes;
     this._players = [];
-    this._state = STATE_ENUMS.UNREADY;
+    this._state = UNREADY;
     this._started = false;
   }
 
-  _updateState(state) {
-    if (state !== undefined) {
-      this._state = state;
-    } else if (this.players().length > 1) {
-      this._state = STATE_ENUMS.READY;
-    } else {
-      this._state = STATE_ENUMS.UNREADY;
-    }
+  _changeState(newState) {
+    this._state = newState;
+  }
+
+  dim() {
+    return this._dim;
   }
 
   players() {
@@ -44,7 +69,6 @@ class Game {
   add(player) {
     if (!this.isPlayerIn(player)) {
       this._players.push(player);
-      this._updateState();
       player.enter(this);
     }
   }
@@ -52,7 +76,6 @@ class Game {
   remove(player) {
     if (this.isPlayerIn(player)) {
       this._players = this._players.filter(_player => _player !== player);
-      this._updateState();
       player.leave();
     }
   }
@@ -61,13 +84,52 @@ class Game {
     return this._state;
   }
 
-  start() {
-    if (this.state() === STATE_ENUMS.READY) {
-      this._updateState(STATE_ENUMS.PLACEMENT);
-      return this._started = true;
+  ready() {
+    let players = this._players;
+    let promises;
+
+    if (players.length < 2) {
+      return false;
     } else {
-      return this._started = false;
+      promises = players.map(player => player.ready());
+      return Promise.all(promises).then(() => {
+        this._changeState(READY);
+      });
     }
+  }
+
+  _assignBoardsToPlayers() {
+    this._boards = this._players.map(player => {
+      let board = new Board(this.dim());
+      player.board(board);
+      return board;
+    });
+  }
+
+  _createShips() {
+    return this._shipTypes.map(type => new Ship(type));
+  }
+
+  start() {
+    let players = this._players;
+    let boards;
+    let promises;
+
+    if (this.state() !== READY) {
+      return this._started = false;
+    } else {
+      this._changeState(SETUP);
+      this._assignBoardsToPlayers();
+      promises = players.map(player => player.setup(this._createShips()));
+      return Promise.all(promises).then(() => {
+        this._changeState(BATTLE);
+        return this._started = true;
+      });
+    }
+  }
+
+  verify() {
+    return;
   }
 }
 
