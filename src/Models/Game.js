@@ -52,6 +52,7 @@ class Game {
     this._started = false;
     this._winners = [];
     this._losers = [];
+    this._turn = 0;
   }
 
   _changeState(newState) {
@@ -62,8 +63,18 @@ class Game {
     return this._dim;
   }
 
+  turnNo() {
+    return this._turn;
+  }
+
   players() {
     return this._players;
+  }
+
+  currentPlayer() {
+    let players = this.players();
+
+    return players[this.turnNo() % players.length];
   }
 
   winners() {
@@ -195,8 +206,20 @@ class Game {
     });
   }
 
-  verify() {
-    return;
+  verify(board) {
+    return Board.verifySetup(board);
+  }
+
+  _nextTurn() {
+    this._turn++;
+  }
+
+  turn() {
+    let player = this.currentPlayer();
+
+    return Promise.all(player.turn()).then(() => {
+      this._nextTurn();
+    });
   }
 
   finish(winners, losers) {

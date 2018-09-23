@@ -219,11 +219,26 @@ describe('Game', () => {
       beforeEach(() => {
         player2 = new Player();
         player1.ready = player2.ready = () => true;
+        player1.setup = (ships) => {
+          let board = player1.board();
+          board.launchRandomly(ships, { seed: 0 });
+
+          return board;
+        };
+
+        player2.setup = (ships) => {
+          let board = player2.board();
+          board.launchRandomly(ships, { seed: 0 });
+
+          return board;
+        };
         game.add(player1);
         game.add(player2);
       });
 
       it('gives 3 tries to properly setup a board before concluding the game', async () => {
+        game.verify = () => false;
+
         let spy = jest.spyOn(game, 'verify');
         let ready = game.ready();
 
@@ -241,51 +256,61 @@ describe('Game', () => {
         });
       });
 
-      let setup = () => {
-        player1.setup = (ships) => {
-          let board = player1.board();
-          board.launchRandomly(ships, { seed: 0 });
-
-          return board;
-        };
-
-        player2.setup = (ships) => {
-          let board = player2.board();
-          board.launchRandomly(ships, { seed: 0 });
-
-          return board;
-        };
-      };
-
       it('can progress to the next stage when both players complete their setup correctly' +
-            ' with given array of ships', () => {
+            ' with given array of ships', async () => {
 
         let spy = jest.spyOn(game, 'verify');
 
-        game.ready();
-        setup();
-        game.start();
-
-        expect(spy).toHaveBeenCalledTimes(2);
-        expect(game.state()).toBe(BATTLE);
+        await game.ready()
+                    .then(() => game.start())
+                    .then(()  => {
+                      expect(spy).toHaveBeenCalledTimes(2);
+                      expect(game.state()).toBe(BATTLE);
+                    });
       });
 
-      it('can progress to BATTLE state and start taking turns', () => {
-        game.ready();
-        setup();
-        game.start();
+      it('can progress to BATTLE state and start taking turns', async () => {
         player1.turn = () => [5, 5];
         let spy = jest.spyOn(player1, 'turn');
 
-        expect(game.currentPlayer()).toBe(player1);
-        game.turn();
-        expect(game.currentPlayer()).toBe(player2);
-        expect(spy).toHaveBeenCalled();
+        await game.ready()
+                    .then(() => game.start())
+                    .then(()  => {
+                      expect(game.currentPlayer()).toBe(player1);
+                      expect(game.state()).toBe(BATTLE);
+                    })
+                    .then(() => game.turn())
+                    .then(() => {
+                      expect(game.currentPlayer()).toBe(player2);
+                      expect(spy).toHaveBeenCalled();
+                    });
+      });
 
+      it('can conclude the game if a player would not shoot into a valid target ' +
+          '3 times in the row', async () => {
+        player1.turn = player2.turn = () => [5, 5];
+        let spy1 = jest.spyOn(player1, 'turn');
+        let spy2 = jest.spyOn(player2, 'turn');
+
+        await game.ready()
+                    .then(() => game.start())
+                    .then(() => game.turn())
+                    .then(() => game.turn())
+                    .then(() => game.turn())
+                    .then(() => {
+                      expect(game.state()).toBe(FINISHED);
+                      expect(spy1).toHaveBeenCalledTimes(4);
+                      expect(spy2).toHaveBeenCalledTimes(1);
+                      expect(game.losers()).toEqual([
+                        player1,
+                      ]);
+                      expect(game.winners()).toEqual([
+                        player2,
+                      ]);
+                    });
       });
 
       it('can pass all the stages and take the whole battle, finish it at some point', () => {
-        setup();
         let random = seedrandom(0);
         let turn = (game, opponentsBoardState) => {
           let state = opponentsBoardState;
