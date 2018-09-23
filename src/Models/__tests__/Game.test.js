@@ -120,6 +120,8 @@ describe('Game', () => {
     });
 
     it('can start only after at least two players joined and signalized ready', async () => {
+      game.verify = () => true;
+
       expect(game.start()).toBe(false);
       expect(game.state()).toBe(UNREADY);
       let player2 = new Player();
@@ -144,7 +146,7 @@ describe('Game', () => {
       });
     });
 
-    describe('with two players in the game', () => {
+    describe('with two players in the game, with mocked verify functionality', () => {
       let player2;
 
       beforeEach(() => {
@@ -209,16 +211,34 @@ describe('Game', () => {
         });
       });
 
-      it('gives 3 tries to properly setup a board before concluding the game', () => {
+    });
+
+    describe('with two players in the game', () => {
+      let player2;
+
+      beforeEach(() => {
+        player2 = new Player();
+        player1.ready = player2.ready = () => true;
+        game.add(player1);
+        game.add(player2);
+      });
+
+      it('gives 3 tries to properly setup a board before concluding the game', async () => {
         let spy = jest.spyOn(game, 'verify');
-        game.ready();
-        game.start();
-        expect(spy).toHaveBeenCalledTimes(6);
-        expect(game.state()).toBe(FINISHED);
-        expect(game.losers()).toBeEqual([
-          player1,
-          player2,
-        ]);
+        let ready = game.ready();
+
+        await ready.then(() => {
+          expect(game.winners()).toEqual([]);
+          expect(game.losers()).toEqual([]);
+          return game.start().then(() => {
+            expect(spy).toHaveBeenCalledTimes(6);
+            expect(game.state()).toBe(FINISHED);
+            expect(game.losers()).toEqual([
+              player1,
+              player2,
+            ]);
+          });
+        });
       });
 
       let setup = () => {

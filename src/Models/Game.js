@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import Ship from './Ship';
 import Board from './Board';
 
@@ -48,6 +50,8 @@ class Game {
     this._players = [];
     this._state = UNREADY;
     this._started = false;
+    this._winners = [];
+    this._losers = [];
   }
 
   _changeState(newState) {
@@ -60,6 +64,14 @@ class Game {
 
   players() {
     return this._players;
+  }
+
+  winners() {
+    return this._winners;
+  }
+
+  losers() {
+    return this._losers;
   }
 
   isPlayerIn(player) {
@@ -120,16 +132,86 @@ class Game {
     } else {
       this._changeState(SETUP);
       this._assignBoardsToPlayers();
-      promises = players.map(player => player.setup(this._createShips()));
-      return Promise.all(promises).then(() => {
+      return this.setup(players);
+    }
+  }
+
+  _resetAttempts() {
+    delete this._attempts;
+  }
+
+  _attempt(players) {
+    let attempts = this._attempts;
+
+    if (!attempts) {
+      attempts = this._attempts = players.reduce((map, player) => {
+        map.set(player, 1);
+        return map;
+      }, new Map());
+    } else {
+      for (let player of players) {
+        attempts.set(
+          player,
+          attempts.get(player) + 1,
+        );
+      }
+    }
+
+    return attempts;
+  }
+
+  setup(players) {
+    let attempts = Array.from(this._attempt(players));
+
+    if (_.values(attempts).some(attempt => attempt[1] > 3)) {
+
+      let winners = attempts.filter(attempt => attempt[1] < 4)
+                      .map(attempt => attempt[0]);
+      let losers = attempts.filter(attempt => attempt[1] > 3)
+                      .map(attempt => attempt[0]);
+      this.finish(winners, losers);
+      return false;
+    }
+
+    let promises = players.map(player => player.setup(this._createShips()));
+    return Promise.all(promises).then(() => {
+      let verdicts = players.map(player => this.verify(player.board()));
+      let allGood = verdicts.every(verdict => verdict);
+
+      if (allGood) {
         this._changeState(BATTLE);
         return this._started = true;
-      });
-    }
+      } else {
+        players = players.reduce((players, player, i) => {
+          if (!verdicts[i]) {
+            players.push(player);
+          }
+
+          return players;
+        }, []);
+
+        return this.setup(players);
+      }
+    });
   }
 
   verify() {
     return;
+  }
+
+  finish(winners, losers) {
+    this._changeState(FINISHED);
+    this._resetAttempts();
+    this._winners = winners;
+    this._losers = losers;
+
+    for (let winner of winners) {
+      winner.win();
+    }
+
+    for (let loser of losers) {
+      loser.lose();
+    }
   }
 }
 
