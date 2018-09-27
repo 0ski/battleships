@@ -122,7 +122,7 @@ describe('Game', () => {
     it('can start only after at least two players joined and signalized ready', async () => {
       game.verify = () => true;
 
-      expect(game.start()).toBe(false);
+      await game.start();
       expect(game.state()).toBe(UNREADY);
       let player2 = new Player();
       game.add(player1);
@@ -320,7 +320,55 @@ describe('Game', () => {
         expect(_.last(player2.ships()).hitpoints()).toBe(0);
       });
 
-      fit('can pass all the stages and take the whole battle, finish it at some point',
+      it('can save moves in history and pass previous shoot state for player\'s turn fun.',
+        async () => {
+
+        function* gen() {
+          yield [0, 1];
+          return [0, 5];
+        }
+
+        let prevHIT;
+        let prevWATER;
+
+        let play1gen = gen();
+        let play2gen = gen();
+        player1.turn = (opponents, prevShootState) => {
+          if (prevShootState.state === HIT) {
+            prevHIT = prevShootState;
+          }
+
+          return { target: play1gen.next().value, player: opponents[0] };
+        };
+
+        player2.turn = (opponents, prevShootState) => {
+          if (prevShootState.state === WATER) {
+            prevWATER = prevShootState;
+          }
+
+          return { target: play2gen.next().value, player: opponents[0] };
+        };
+
+        await game.ready();
+        await game.start();
+        await game.turn(); //p1
+        await game.turn(); //p2
+
+        let player1Hist = game.history(player1);
+        let player2Hist = game.history(player2);
+
+        expect(game.history().length).toBe(4);
+        expect(player1Hist.length).toBe(2);
+        expect(player2Hist.length).toBe(2);
+        expect(player1Hist[0].result).toBe(HIT);
+        expect(player2Hist[1].result).toBe(WATER);
+        expect(player1Hist[0].turn).toBe(0);
+        expect(player1Hist[1].turn).toBe(0);
+        expect(player2Hist[0].turn).toBe(1);
+        expect(player2Hist[1].turn).toBe(1);
+      });
+
+      it('can pass all the stages and take the whole battle, finish it at some point',
         async () => {
 
         //Both players have the same boards, and make the same moves, so player1 always wins

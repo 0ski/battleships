@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import Ship from './Ship';
 import Board from './Board';
+import Player from './Player';
 
 const SHIP_TYPES = Ship.types();
 const { UNREVEALED, WATER, HIT } = Board.results();
@@ -109,8 +110,18 @@ class Game {
     return this._state;
   }
 
-  history() {
-    return this._history;
+  history(player) {
+    let history = this._history;
+
+    if (player instanceof Player) {
+      history = history.filter(entry => entry.shootingPlayer === player);
+    }
+
+    return history;
+  }
+
+  _prevShootOf(player) {
+    return _.last(this.history(player)) || {};
   }
 
   async ready() {
@@ -224,10 +235,11 @@ class Game {
     let opponents = this.players().filter(pl => pl !== currentPlayer);
     let attempts = 1;
     let turn = this.turnNo();
-    let { player, target } = await currentPlayer.turn(opponents);
+    let prevShoot = this._prevShootOf(currentPlayer);
+    let { player, target } = await currentPlayer.turn(opponents, prevShoot);
 
     while (!Board.verifyShootingTarget(player.board(), target) && attempts < 3) {
-      ({ player, target } = await currentPlayer.turn(opponents));
+      ({ player, target } = await currentPlayer.turn(opponents, prevShoot));
       attempts++;
     }
 

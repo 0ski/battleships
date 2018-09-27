@@ -45,7 +45,7 @@ class Player {
     return false;
   }
 
-  turn(opponentsBoardState) {
+  turn(opponents, prevShootState) {
     return [0, 0];
   }
 
