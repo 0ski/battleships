@@ -342,6 +342,15 @@ class Board {
     return this._setup;
   }
 
+  unrevealedCells() {
+    let unrevealed = this.state().map(
+      (row, rowId) => row.map(
+        (cell, colId) => cell === UNREVEALED ? [colId, rowId] : null
+      )
+    );
+    return _.flatten(unrevealed).filter(item => item !== null);
+  }
+
   toString() {
     let state = this.state();
 

@@ -377,15 +377,9 @@ describe('Game', () => {
 
         let random = seedrandom(0);
         let turn = opponents => {
-          let state = opponents[0].board().state();
+          let board = opponents[0].board();
 
-          let available = state.map(
-            (row, rowId) => row.map(
-              (cell, colId) => cell === UNREVEALED ? [colId, rowId] : null
-            )
-          );
-
-          available = _.flatten(available).filter(item => item !== null);
+          let available = board.unrevealedCells();
           let pos = available[Math.floor(random() * 229) % available.length];
 
           return {
