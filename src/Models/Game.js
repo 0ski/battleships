@@ -5,7 +5,7 @@ import Board from './Board';
 import Player from './Player';
 
 const SHIP_TYPES = Ship.types();
-const { UNREVEALED, WATER, HIT } = Board.results();
+const { WATER, HIT } = Board.results();
 
 const UNREADY = -1;
 const READY = 0;
@@ -151,8 +151,6 @@ class Game {
 
   async start() {
     let players = this._players;
-    let boards;
-    let promises;
 
     if (this.state() !== READY) {
       return this._started = false;

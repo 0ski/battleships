@@ -15,9 +15,17 @@
 
 .item {
   position: relative;
+}
+
+.pixelFlagText {
   font-family: "Yoster";
   font-size: 45px;
   color: #fff;
+}
+
+.pixelFlagText:hover {
+  cursor: pointer;
+  color: #660000;
 }
 
 .pixelFlag {

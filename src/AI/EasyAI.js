@@ -1,6 +1,26 @@
+import seedrandom from 'seedrandom';
+
 import Player from '../Models/Player';
 
+const PRIME = 229;
+
 class EasyAI extends Player {
+
+  constructor({
+    seed = Math.floor(Math.random() * PRIME),
+    delay = undefined,
+  }={}) {
+    super();
+    this._random = seedrandom(seed);
+    if (delay !== undefined) {
+      this.delay(delay);
+    }
+  }
+
+  random() {
+    return Math.floor(this._random() * PRIME);
+  }
+
   ready() {
     return true;
   }
@@ -19,7 +39,7 @@ class EasyAI extends Player {
     if (delay === undefined) {
       return this._setup(ships);
     } else {
-      let promise = new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         setTimeout(() => resolve(this._setup(ships)), delay);
       });
     }
@@ -31,7 +51,7 @@ class EasyAI extends Player {
     if (delay === undefined) {
       return this._turn(opponents, prevShootState);
     } else {
-      let promise = new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         setTimeout(() => resolve(this._turn(opponents, prevShootState)), delay);
       });
     }
@@ -40,7 +60,7 @@ class EasyAI extends Player {
   _setup(ships) {
     super.setup(ships);
 
-    let seed = Math.floor(Math.random() * 229);
+    let seed = this.random();
     console.log('Setting up random board with seed: ', seed);
 
     return this.board().launchRandomly(ships, { seed });
@@ -50,7 +70,7 @@ class EasyAI extends Player {
     let board = opponents[0].board();
 
     let available = board.unrevealedCells();
-    let pos = available[Math.floor(random() * 229) % available.length];
+    let pos = available[this.random() % available.length];
 
     return {
       player: opponents[0],
@@ -58,3 +78,5 @@ class EasyAI extends Player {
     };
   };
 }
+
+export default EasyAI;

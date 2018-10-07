@@ -8,7 +8,10 @@ class Menu extends Component {
         <ul className={ styles.menu }>
           <li className={ styles.item }>
             <div className={ styles.pixelFlag }></div>
-            <div className={ styles.flag }>New game</div>
+            <div
+              className={ styles.pixelFlagText }
+              onClick={ this.props.newGame }
+            >New game</div>
           </li>
         </ul>
       </div>

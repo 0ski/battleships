@@ -108,11 +108,7 @@ class Board {
   }
 
   static availableSpots(board, ship) {
-    let size = ship.size();
-    let orientation = ship.shape();
     let setup = board.setup();
-    let dim = board.dim();
-    let [totalCol, totalRow] = dim;
 
     let nestedArray = setup.map(
       (row, rowId) => row.map(
@@ -201,9 +197,6 @@ class Board {
   launchRandomly(ships, { seed=undefined, keepShape=false }) {
     //Cast ship board placement to array of ships
     ships = ships.map(ship => ship.ship ? ship.ship : ship);
-    let dim = this.dim();
-    let [totalCol, totalRow] = dim;
-    let maxAttempts = 50;
     let solvable = true;
 
     let random = seedrandom(seed);
@@ -292,7 +285,7 @@ class Board {
         }
 
         //around ship
-        if (i == -1 || i == size) {
+        if (i === -1 || i === size) {
           state[targetRow][Math.max(targetCol + i, 0)] = WATER;
         } else {
           state[targetRow][Math.max(targetCol + i, 0)] = HIT;
@@ -313,7 +306,7 @@ class Board {
         }
 
         //around ship
-        if (i == -1 || i == size) {
+        if (i === -1 || i === size) {
           state[Math.max(targetRow + i, 0)][targetCol] = WATER;
         } else {
           state[Math.max(targetRow + i, 0)][targetCol] = HIT;

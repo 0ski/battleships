@@ -6,6 +6,7 @@
     "numjs": "^0.16.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "react-list-select": "^0.4.0",
     "react-scripts": "2.0.0-next.2150693d",
     "seedrandom": "^2.4.4"
   },
