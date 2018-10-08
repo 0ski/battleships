@@ -46,7 +46,7 @@ describe('Ship', () => {
     });
 
     it('has a proper name type, shape, size and state', () => {
-      expect(ship.type()).toBe(type.name);
+      expect(ship.name()).toBe(type.name);
       expect(ship.shape()).toBe(shapes.HORIZONTAL);
       expect(ship.size()).toBe(type.size);
       expect(ship.state()).toBe(GARAGE);

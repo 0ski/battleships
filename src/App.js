@@ -5,6 +5,7 @@ import Game from './Models/Game';
 
 import Menu from './Components/Menu';
 import PlayersLists from './Components/PlayersLists';
+import ShipComponent from './Components/ShipComponent';
 
 const GAME_STATES = Game.states();
 

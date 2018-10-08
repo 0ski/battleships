@@ -33,16 +33,21 @@ class Ship {
 
   constructor(type) {
     if (type) {
-      this._type = type.name;
+      this._type = type;
+      this._name = type.name;
       this._size = type.size;
     } else {
-      this._type = '';
+      this._name = '';
       this._size = 0;
     }
 
     this._hitpoints = this._size;
     this._state = STATES.GARAGE;
     this._shape = SHAPES.HORIZONTAL;
+  }
+
+  name() {
+    return this._name;
   }
 
   hitpoints() {

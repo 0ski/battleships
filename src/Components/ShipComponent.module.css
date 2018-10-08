@@ -1,0 +1,37 @@
+.ship {
+  margin: 10px 5px;
+}
+
+.structure {
+  display: inline-grid;
+  grid-gap: 3px;
+  background-color: #C19A6B;
+  padding: 10px;
+  border-radius: 15px;
+  color: #444;
+  grid-auto-flow: column;
+  grid-auto-columns: min-content;
+}
+
+.name {
+  padding-left: 15px;
+}
+
+.part {
+  opacity: 0.3;
+  color: #fff;
+  border-radius: 5px;
+  width: 20px;
+  height: 20px;
+}
+
+.damagedPart {
+  composes: part;
+  opacity: 0.8;
+  background-color: #660000;
+}
+
+.healthyPart {
+  composes: part;
+  background-color: #fff;
+}
