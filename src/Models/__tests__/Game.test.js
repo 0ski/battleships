@@ -257,16 +257,14 @@ describe('Game', () => {
         player2.turn = () => ({ target: [9, 9], player: player1 });
         let spy1 = jest.spyOn(player1, 'turn');
         let spy2 = jest.spyOn(player2, 'turn');
-        let result;
 
         await game.ready();
         await game.start();
         expect(game.currentPlayer()).toBe(player1);
         expect(game.state()).toBe(BATTLE);
-        result = await game.turn();
-        expect(result).toBe(WATER);
+        await game.turn();
         expect(game.currentPlayer()).toBe(player2);
-        result = await game.turn();
+        await game.turn();
         expect(spy1).toHaveBeenCalledTimes(1);
         expect(spy2).toHaveBeenCalledTimes(1);
       });
@@ -342,8 +340,8 @@ describe('Game', () => {
 
         await game.ready();
         await game.start(callback.cb);
-        result = await game.turn();
-        result = await game.turn();
+        await game.turn();
+        await game.turn();
         expect(spy).toHaveBeenCalledTimes(10);
       });
 

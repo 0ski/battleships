@@ -151,7 +151,8 @@ class Game {
     return this._shipTypes.map(type => new Ship(type));
   }
 
-  async start() {
+  async start(cb = _.noop) {
+    this._cb = cb;
     let players = this._players;
 
     if (this.state() !== READY) {
@@ -249,15 +250,17 @@ class Game {
     }
 
     let { result, sink } = player.board().shoot(target);
-
-    this._history.push({
+    let shootState = {
       shootingPlayer: currentPlayer,
       recievingPlayer: player,
       turn,
       target,
       result,
       sink,
-    });
+    };
+
+    this._history.push(shootState);
+    this._cb(shootState);
 
     if (result === WATER) {
       this._nextTurn();
