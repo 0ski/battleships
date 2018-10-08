@@ -1,5 +1,6 @@
 import Board from '../Board';
 import Ship from '../Ship';
+import Game from '../Game';
 
 describe('Board', () => {
   const { UNREVEALED, WATER, HIT, SINK } = Board.results();
@@ -201,6 +202,21 @@ describe('Board', () => {
       expect(board.launch([0, 0], sloop)).toBe(true);
       expect(board.remove(sloop)).toBe(sloop);
       expect(board.launch([9, 9], sloop)).toBe(true);
+    });
+
+    it('can launch couple ships and then clear itself', () => {
+      let sloop1 = new Ship(SHIP_TYPES[0]);
+      let sloop2 = new Ship(SHIP_TYPES[0]);
+      let sloop3 = new Ship(SHIP_TYPES[0]);
+
+      expect(board.launch([0, 0], sloop1)).toBe(true);
+      expect(board.launch([4, 4], sloop2)).toBe(true);
+      expect(board.launch([6, 6], sloop3)).toBe(true);
+
+      board.clear();
+      let newBoard = new Board();
+
+      expect(board.setupToString()).toEqual(newBoard.setupToString());
     });
 
     describe('can arrange ships sticking to corners and', () => {

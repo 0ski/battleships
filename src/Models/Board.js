@@ -4,11 +4,12 @@ import seedrandom from 'seedrandom';
 
 import Ship from './Ship';
 
+const ERROR = -1;
 const UNREVEALED = 0;
 const WATER = 1;
 const HIT = 2;
 const SINK = 3;
-const RESULTS = { UNREVEALED, WATER, HIT, SINK };
+const RESULTS = { UNREVEALED, WATER, HIT, SINK, ERROR };
 
 const NUM_2_STR = {
   [UNREVEALED]: '-',
@@ -63,9 +64,9 @@ class Board {
 
       for (let i = -1; i <= size && targetCol + i < totalCol; i++) {
         if (
-          setup[Math.max(targetRow - 1, 0)][Math.max(targetCol + i, 0)] === HIT ||
-          setup[targetRow][Math.max(targetCol + i, 0)] === HIT ||
-          setup[Math.min(targetRow + 1, totalRow - 1)][Math.max(targetCol + i, 0)] === HIT
+          setup[Math.max(targetRow - 1, 0)][Math.max(targetCol + i, 0)] === SINK ||
+          setup[targetRow][Math.max(targetCol + i, 0)] === SINK ||
+          setup[Math.min(targetRow + 1, totalRow - 1)][Math.max(targetCol + i, 0)] === SINK
         ) {
           return false;
         }
@@ -77,9 +78,9 @@ class Board {
 
       for (let i = -1; i <= size && targetRow + i < totalRow; i++) {
         if (
-          setup[Math.max(targetRow + i, 0)][Math.max(targetCol - 1, 0)] === HIT ||
-          setup[Math.max(targetRow + i, 0)][targetCol] === HIT ||
-          setup[Math.max(targetRow + i, 0)][Math.min(targetCol + 1, totalCol - 1)] === HIT
+          setup[Math.max(targetRow + i, 0)][Math.max(targetCol - 1, 0)] === SINK ||
+          setup[Math.max(targetRow + i, 0)][targetCol] === SINK ||
+          setup[Math.max(targetRow + i, 0)][Math.min(targetCol + 1, totalCol - 1)] === SINK
         ) {
           return false;
         }
@@ -153,6 +154,32 @@ class Board {
     return this._ships.find(item => item.ship === ship);
   }
 
+  _toSetup(pos, ship, STATE, clear=false) {
+    let orientation = ship.shape();
+    let size = ship.size();
+    let [posCol, posRow] = pos;
+
+    if (orientation === SHIP_SHAPES.HORIZONTAL) {
+      for (let i = 0; i < size; i++) {
+        this._setup[posRow][posCol + i] = STATE;
+        if (clear) {
+          this._shipsBoard[posRow][posCol + i] = undefined;
+        } else {
+          this._shipsBoard[posRow][posCol + i] = ship;
+        }
+      }
+    } else if (orientation === SHIP_SHAPES.VERTICAL) {
+      for (let i = 0; i < size; i++) {
+        this._setup[posRow + i][posCol] = STATE;
+        if (clear) {
+          this._shipsBoard[posRow + i][posCol] = undefined;
+        } else {
+          this._shipsBoard[posRow + i][posCol] = ship;
+        }
+      }
+    }
+  }
+
   launch(pos, ship) {
     if (!Board.verifyTarget(this, pos)) {
       return false;
@@ -166,38 +193,30 @@ class Board {
       return false;
     }
 
-    let [posCol, posRow] = pos;
-    let orientation = ship.shape();
-    let size = ship.size();
-
     this._ships.push({
       ship,
       pos,
     });
-    this._setup[posRow][posCol] = HIT;
 
-    if (orientation === SHIP_SHAPES.HORIZONTAL) {
-      for (let i = 0; i < size; i++) {
-        this._setup[posRow][posCol + i] = HIT;
-        this._shipsBoard[posRow][posCol + i] = ship;
-      }
-    } else if (orientation === SHIP_SHAPES.VERTICAL) {
-      for (let i = 0; i < size; i++) {
-        this._setup[posRow + i][posCol] = HIT;
-        this._shipsBoard[posRow + i][posCol] = ship;
-      }
-    }
+    this._toSetup(pos, ship, SINK);
 
     return true;
   }
 
   remove(ship) {
     if (this._isShipOnBoard(ship)) {
+      let item = this._ships.find(item => item.ship === ship);
+      this._toSetup(item.pos, ship, WATER, true);
       this._ships = this._ships.filter(item => item.ship !== ship);
       return ship;
     } else {
       return false;
     }
+  }
+
+  clear() {
+    let ships = this.ships();
+    ships.forEach(item => this.remove(item.ship));
   }
 
   launchRandomly(ships, { seed=undefined, keepShape=false }) {
@@ -239,13 +258,16 @@ class Board {
 
     if (state[targetRow][targetCol] === UNREVEALED) {
       result = state[targetRow][targetCol] = setup[targetRow][targetCol];
-      if (result === HIT) {
+      if (result === SINK) {
         ship = this._shipsBoard[targetRow][targetCol];
+
         hitPointsLeft = ship.hit();
 
         if (hitPointsLeft === 0) {
           this.sinkShip(ship);
           result = SINK;
+        } else {
+          result = HIT;
         }
       }
     } else {

@@ -63,16 +63,16 @@ describe('Game', () => {
   beforeEach(() => {
     game = new Game({
       shipTypes: [
-        new Ship(SHIP_TYPES[0]),
-        new Ship(SHIP_TYPES[0]),
-        new Ship(SHIP_TYPES[0]),
-        new Ship(SHIP_TYPES[0]),
-        new Ship(SHIP_TYPES[1]),
-        new Ship(SHIP_TYPES[1]),
-        new Ship(SHIP_TYPES[1]),
-        new Ship(SHIP_TYPES[2]),
-        new Ship(SHIP_TYPES[2]),
-        new Ship(SHIP_TYPES[3]),
+        SHIP_TYPES[0],
+        SHIP_TYPES[0],
+        SHIP_TYPES[0],
+        SHIP_TYPES[0],
+        SHIP_TYPES[1],
+        SHIP_TYPES[1],
+        SHIP_TYPES[1],
+        SHIP_TYPES[2],
+        SHIP_TYPES[2],
+        SHIP_TYPES[3],
       ],
     });
     player1 = new Player();
@@ -99,6 +99,15 @@ describe('Game', () => {
       expect(game.players()[0]).toBe(undefined);
       expect(game.isPlayerIn(player1)).toBe(false);
       expect(player1.isInGame()).toBe(false);
+    });
+
+    it('can verify failing board setup correctly', () => {
+      let failingBoard = new Board();
+      let ships = game._createShips();
+
+      failingBoard.launchRandomly(ships, { seed: 56 });
+
+      expect(game.verify(failingBoard)).toBe(false);
     });
 
     it('cannot add the same player twice', () => {

@@ -48,6 +48,7 @@ class Battlefield extends Component {
         <div className={ styles.rightShipList }>
           <ShipList
             ships={ players[1].ships() }
+            side={ 'right' }
           ></ShipList>
         </div>
       </div>

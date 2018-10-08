@@ -5,7 +5,7 @@ import Board from './Board';
 import Player from './Player';
 
 const SHIP_TYPES = Ship.types();
-const { WATER, HIT, SINK } = Board.results();
+const { WATER, HIT, SINK, ERROR } = Board.results();
 
 const UNREADY = -1;
 const READY = 0;
@@ -205,7 +205,7 @@ class Game {
     let promises = players.map(player => player.setup(player.ships()));
 
     await Promise.all(promises);
-    let verdicts = players.map(player => this.verify(player.board()));
+    let verdicts = players.map(player => this.verify(player.board(), player.ships()));
 
     if (verdicts.every(verdict => verdict)) {
       this._changeState(BATTLE);
@@ -224,6 +224,10 @@ class Game {
   }
 
   verify(board) {
+    if (this._shipTypes.length !== board.ships().length) {
+      return false;
+    }
+
     return Board.verifySetup(board);
   }
 
@@ -238,39 +242,43 @@ class Game {
     let turn = this.turnNo();
     let prevShoot = this._prevShootOf(currentPlayer);
     let { player, target } = await currentPlayer.turn(opponents, prevShoot);
-
-    while (!Board.verifyShootingTarget(player.board(), target) && attempts < 3) {
-      ({ player, target } = await currentPlayer.turn(opponents, prevShoot));
-      attempts++;
-    }
-
-    if (attempts > 2) {
-      this.finish(opponents, [currentPlayer]);
-      return false;
-    }
-
-    let { result } = player.board().shoot(target);
     let shootState = {
       shootingPlayer: currentPlayer,
       recievingPlayer: player,
       turn,
       target,
-      result,
     };
 
+    while (!Board.verifyShootingTarget(player.board(), target) && attempts < 3) {
+      shootState.result = ERROR;
+      this._history.push(shootState);
+      ({ player, target } = await currentPlayer.turn(opponents, prevShoot));
+      attempts++;
+    }
+
+    if (attempts > 2) {
+      shootState.result = ERROR;
+      this._history.push(shootState);
+      this.finish(opponents, [currentPlayer]);
+      return false;
+    }
+
+    let { result } = player.board().shoot(target);
+    shootState.result = result;
     this._history.push(shootState);
     await this._cb(shootState);
 
     if (result === WATER) {
       this._nextTurn();
     } else if (result === HIT) {
-
-      if (result === SINK && player.floatingShips().length === 0) {
+      return this.turn();
+    } else if (result === SINK) {
+      if (player.floatingShips().length === 0) {
         this.finish([currentPlayer], [player]);
         return;
+      } else {
+        return this.turn();
       }
-
-      return this.turn();
     }
 
     return result;

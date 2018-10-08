@@ -13,7 +13,7 @@ class GameRunner extends Component {
   state = DEFAULT_STATE;
 
   createNewGame = () => {
-    this.game = new Game();
+    window.game = this.game = new Game();
     this.setState({
       gameState: this.game.state(),
     });
@@ -50,6 +50,9 @@ class GameRunner extends Component {
 
     while (this.game.state() !== GAME_STATES.FINISHED) {
       await this.game.turn();
+      this.setState({
+        gameState: this.game.state(),
+      });
     }
   };
 

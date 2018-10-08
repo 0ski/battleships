@@ -37,7 +37,7 @@ class App extends Component {
           />
         </div>
       );
-    } else if (gameState === GAME_STATES.BATTLE) {
+    } else if (gameState === GAME_STATES.BATTLE || gameState === GAME_STATES.FINISHED) {
       contents = (
         <Battlefield
           gameInterface = { this.props.gameInterface }

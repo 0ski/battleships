@@ -65,11 +65,18 @@ class EasyAI extends Player {
 
   _setup(ships) {
     super.setup(ships);
+    let boardNeedsSetup = true;
+    let board = this.board();
 
-    let seed = this.random();
-    console.log('Setting up random board with seed: ', seed);
+    while (boardNeedsSetup) {
+      let seed = this.random();
+      console.log('Setting up random board with seed: ', seed);
 
-    return this.board().launchRandomly(ships, { seed });
+      board.clear();
+      boardNeedsSetup = !board.launchRandomly(ships, { seed });
+    }
+
+    return board;
   }
 
   _turn(opponents, prevShootState) {
@@ -82,7 +89,7 @@ class EasyAI extends Player {
       player: opponents[0],
       target: pos,
     };
-  };
+  }
 }
 
 export default EasyAI;
