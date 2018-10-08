@@ -260,7 +260,7 @@ class Game {
     };
 
     this._history.push(shootState);
-    this._cb(shootState);
+    await this._cb(shootState);
 
     if (result === WATER) {
       this._nextTurn();

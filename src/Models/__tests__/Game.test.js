@@ -345,6 +345,37 @@ describe('Game', () => {
         expect(spy).toHaveBeenCalledTimes(10);
       });
 
+      it('accepts async callbacks and respects them', async () => {
+        function* gen() {
+          yield [0, 1];
+          yield [0, 2];
+          yield [0, 3];
+          yield [0, 4];
+
+          //return [0, 5]; - that is invalid target as it's revelaed after sinking a ship
+          return [0, 6];
+        }
+
+        let play1gen = gen();
+        let play2gen = gen();
+        player1.turn = opponents => ({ target: play1gen.next().value, player: opponents[0] });
+        player2.turn = opponents => ({ target: play2gen.next().value, player: opponents[0] });
+        let callback = {
+          cb: () => new Promise(res => {
+            setTimeout(() => {
+              res();
+            }, 1);
+          }),
+        };
+        let spy = jest.spyOn(callback, 'cb');
+
+        await game.ready();
+        await game.start(callback.cb);
+        await game.turn();
+        await game.turn();
+        expect(spy).toHaveBeenCalledTimes(10);
+      });
+
       it('can save moves in history and pass previous shoot state for player\'s turn fun.',
         async () => {
 
