@@ -22,6 +22,10 @@ class Board {
     return RESULTS;
   }
 
+  static num2str() {
+    return NUM_2_STR;
+  }
+
   static verifyTarget(board, target) {
     let dim = board.dim();
     let valid = Number.isInteger(target[0]) &&

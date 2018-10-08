@@ -26,6 +26,8 @@ class GameRunner extends Component {
     );
   };
 
+  getPlayers = () => this.game.players();
+
   startGame = async () => {
     await this.game.ready();
     await this.game.start();
@@ -33,6 +35,11 @@ class GameRunner extends Component {
       gameState: this.game.state(),
     });
   };
+
+  getBoardDim = () => this.game.dim();
+  getBoardState = playerId => this.game.players()[playerId].board().state();
+  getTurnNo = () => this.game.turnNo() + 1;
+  getCurrentPlayer = () => this.game.currentPlayerNo();
 
   render() {
     return (
@@ -42,7 +49,12 @@ class GameRunner extends Component {
           gameRunner: {
             createNewGame: this.createNewGame,
             addPlayers: this.addPlayers,
+            getPlayers: this.getPlayers,
             startGame: this.startGame,
+            getBoardDim: this.getBoardDim,
+            getBoardState: this.getBoardState,
+            getTurnNo: this.getTurnNo,
+            getCurrentPlayer: this.getCurrentPlayer,
           },
         }}
       >

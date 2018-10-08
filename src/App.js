@@ -5,7 +5,8 @@ import Game from './Models/Game';
 
 import Menu from './Components/Menu';
 import PlayersLists from './Components/PlayersLists';
-import ShipComponent from './Components/ShipComponent';
+import ShipList from './Components/ShipList';
+import BoardView from './Components/BoardView';
 
 const GAME_STATES = Game.states();
 
@@ -25,7 +26,7 @@ class App extends Component {
 
   render() {
     let contents;
-    let { gameState } = this.props.gameInterface;
+    let { gameState, gameRunner } = this.props.gameInterface;
 
     if (gameState === undefined) {
       contents = <Menu newGame={ this.createNewGame }></Menu>;
@@ -35,6 +36,50 @@ class App extends Component {
           <PlayersLists
             onStartGame={ this.addPlayersAndStartGame }
           />
+        </div>
+      );
+    } else if (gameState === GAME_STATES.BATTLE) {
+      let players = gameRunner.getPlayers();
+      contents = (
+        <div className={ styles.battleground }>
+          <div className={ styles.leftShipList }>
+            <ShipList
+              ships={ players[0].ships() }
+            ></ShipList>
+          </div>
+          <div className={ styles.boards }>
+            <div
+              className={
+                gameRunner.getCurrentPlayer() === 0 ? styles.currentPlayer : styles.player
+              }
+            >
+              Player 1
+            </div>
+            <div className={ styles.turn } >
+              { gameRunner.getTurnNo() }
+            </div>
+            <div
+              className={
+                gameRunner.getCurrentPlayer() === 1 ? styles.currentPlayer : styles.player
+              }
+            >
+              Player 2
+            </div>
+            <BoardView
+              boardState={ gameRunner.getBoardState(0) }
+              dim={ gameRunner.getBoardDim() }
+            />
+            <div className={ styles.gap }></div>
+            <BoardView
+              boardState={ gameRunner.getBoardState(1) }
+              dim={ gameRunner.getBoardDim() }
+            />
+          </div>
+          <div className={ styles.rightShipList }>
+            <ShipList
+              ships={ players[1].ships() }
+            ></ShipList>
+          </div>
         </div>
       );
     } else {

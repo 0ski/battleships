@@ -6,7 +6,7 @@
   display: inline-grid;
   grid-gap: 3px;
   background-color: #C19A6B;
-  padding: 10px;
+  padding: 5px 15px;
   border-radius: 15px;
   color: #444;
   grid-auto-flow: column;
@@ -14,15 +14,17 @@
 }
 
 .name {
-  padding-left: 15px;
+  padding-left: 5px;
+  padding-bottom: 5px;
+  font-size: 12px;
 }
 
 .part {
   opacity: 0.3;
   color: #fff;
-  border-radius: 5px;
-  width: 20px;
-  height: 20px;
+  border-radius: 2px;
+  width: 15px;
+  height: 15px;
 }
 
 .damagedPart {

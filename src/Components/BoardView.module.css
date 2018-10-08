@@ -1,0 +1,39 @@
+.board {
+  display: inline-grid;
+  grid-gap: 3px;
+  background-color: rgba(147, 165, 188, 0.8);
+  color: #444;
+  grid-auto-flow: column;
+  grid-auto-columns: min-content;
+  border-radius: 15px;
+  border: 1px solid rgb(103, 118, 139);
+  padding: 15px;
+}
+
+.cell {
+  opacity: 0.5;
+  color: #fff;
+  border-radius: 2px;
+  width: 25px;
+  height: 25px;
+}
+
+.hit {
+  background-color: #C19A6B;
+  composes: cell;
+}
+
+.water {
+  background-color: rgba(128, 197, 222, 1);
+  composes: cell;
+}
+
+.unrevealed {
+  background-color: #212121;
+  composes: cell;
+}
+
+.unrevealed:hover {
+  cursor: pointer;
+  background-color: red;
+}

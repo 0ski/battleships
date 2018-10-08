@@ -9,13 +9,13 @@ class ShipComponent extends Component {
 
     for (let i = 0; i < damage; i++) {
       structure.push(
-        <div className={ styles.damagedPart }></div>
+        <div key={ i } className={ styles.damagedPart }></div>
       );
     }
 
     for (let i = 0; i < hitpoints; i++) {
       structure.push(
-        <div className={ styles.healthyPart }></div>
+        <div key={ damage + i } className={ styles.healthyPart }></div>
       );
     }
 

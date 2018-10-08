@@ -75,9 +75,11 @@ class Game {
   }
 
   currentPlayer() {
-    let players = this.players();
+    return this.players()[this.currentPlayerNo()];
+  }
 
-    return players[this.turnNo() % players.length];
+  currentPlayerNo() {
+    return this.turnNo() % this.players().length;
   }
 
   winners() {
