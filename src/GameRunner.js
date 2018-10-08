@@ -23,7 +23,7 @@ class GameRunner extends Component {
     players.map(PlayerCls =>
       this.game.add(
         new PlayerCls({
-          delay: 1000,
+          delay: 500,
         })
       )
     );

@@ -9,12 +9,18 @@ class EasyAI extends Player {
   constructor({
     seed = Math.floor(Math.random() * PRIME),
     delay = undefined,
+    name = 'Easy AI',
   }={}) {
     super();
     this._random = seedrandom(seed);
+    this._name = name;
     if (delay !== undefined) {
       this.delay(delay);
     }
+  }
+
+  name() {
+    return this._name;
   }
 
   random() {
