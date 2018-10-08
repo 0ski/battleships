@@ -29,8 +29,8 @@ class BoardView extends Component {
       <div
         className={ styles.board }
         style={{
-          'grid-template-columns': `repeat(${totalCol}, 1fr )`,
-          'grid-template-rows': `repeat(${totalRow}, 1fr )`,
+          gridTemplateColumns: `repeat(${totalCol}, 1fr )`,
+          gridTemplateRows: `repeat(${totalRow}, 1fr )`,
         }}
       >
         { cells }

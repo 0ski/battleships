@@ -3,6 +3,8 @@ import Game from './Models/Game';
 
 const DEFAULT_STATE = {
   gameState: undefined,
+  board1: [[]],
+  board2: [[]],
 };
 const GameContext = createContext(DEFAULT_STATE);
 
@@ -28,9 +30,17 @@ class GameRunner extends Component {
 
   getPlayers = () => this.game.players();
 
+  updateFE = () => {
+    let players = this.getPlayers();
+    this.setState({
+      board1: players[0].board.state(),
+      board2: players[1].board.state(),
+    });
+  };
+
   startGame = async () => {
     await this.game.ready();
-    await this.game.start();
+    await this.game.start(this.updateFE);
     this.setState({
       gameState: this.game.state(),
     });
