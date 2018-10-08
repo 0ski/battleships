@@ -13,22 +13,43 @@
 .cell {
   opacity: 0.5;
   color: #fff;
+  border: 1px solid #fff;
   border-radius: 2px;
-  width: 25px;
-  height: 25px;
+  width: 35px;
+  height: 35px;
+}
+
+.sink {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  background-color: #855E42;
+  border: 1px solid #443022;
+  color: #443022;
+  font-size: 15px;
+  composes: cell;
+}
+
+.sink::before {
+  content: "X";
 }
 
 .hit {
-  background-color: #C19A6B;
+  opacity: 1;
+  background-color: #855E42;
+  border: 1px solid #855E42;
   composes: cell;
 }
 
 .water {
-  background-color: rgba(128, 197, 222, 1);
+  background-color: #93a5bc;
+  border: 1px solid #93a5bc;
   composes: cell;
 }
 
 .unrevealed {
+  border: 1px solid #212121;
   background-color: #212121;
   composes: cell;
 }

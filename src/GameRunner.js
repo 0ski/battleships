@@ -1,6 +1,7 @@
 import React, { Component, createContext } from 'react';
 import Game from './Models/Game';
 
+const GAME_STATES = Game.states();
 const DEFAULT_STATE = {
   gameState: undefined,
   board1: [[]],
@@ -32,18 +33,24 @@ class GameRunner extends Component {
 
   updateFE = () => {
     let players = this.getPlayers();
+
     this.setState({
-      board1: players[0].board.state(),
-      board2: players[1].board.state(),
+      board1: players[0].board().state(),
+      board2: players[1].board().state(),
     });
   };
 
   startGame = async () => {
     await this.game.ready();
     await this.game.start(this.updateFE);
+
     this.setState({
       gameState: this.game.state(),
     });
+
+    while (this.game.state() !== GAME_STATES.FINISHED) {
+      await this.game.turn();
+    }
   };
 
   getBoardDim = () => this.game.dim();

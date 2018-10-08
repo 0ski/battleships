@@ -2,7 +2,7 @@ import Board from '../Board';
 import Ship from '../Ship';
 
 describe('Board', () => {
-  const { UNREVEALED, WATER, HIT } = Board.results();
+  const { UNREVEALED, WATER, HIT, SINK } = Board.results();
   const UN = UNREVEALED;
   const { SUNKEN, GARAGE, FLOATING } = Ship.states();
   const SHIP_TYPES = Ship.types();
@@ -238,53 +238,43 @@ describe('Board', () => {
 
       it('hit them to get them all and mark state correctly', () => {
         expect(board.shoot([9, 9])).toEqual({
-          result: HIT,
-          sink: true,
+          result: SINK,
           ship: sloop,
         }); //sloop
         expect(board.shoot([0, 9])).toEqual({
           result: HIT,
-          sink: false,
           ship: brig,
         }); //brig
         expect(board.shoot([1, 9])).toEqual({
-          result: HIT,
-          sink: true,
+          result: SINK,
           ship: brig,
         }); //brig
         expect(board.shoot([0, 0])).toEqual({
           result: HIT,
-          sink: false,
           ship: frigate,
         }); //frigate
         expect(board.shoot([0, 1])).toEqual({
           result: HIT,
-          sink: false,
           ship: frigate,
         }); //frigate
         expect(board.shoot([0, 2])).toEqual({
-          result: HIT,
-          sink: true,
+          result: SINK,
           ship: frigate,
         }); //frigate
         expect(board.shoot([9, 0])).toEqual({
           result: HIT,
-          sink: false,
           ship: galleon,
         }); //galleon
         expect(board.shoot([9, 1])).toEqual({
           result: HIT,
-          sink: false,
           ship: galleon,
         }); //galleon
         expect(board.shoot([9, 2])).toEqual({
           result: HIT,
-          sink: false,
           ship: galleon,
         }); //galleon
         expect(board.shoot([9, 3])).toEqual({
-          result: HIT,
-          sink: true,
+          result: SINK,
           ship: galleon,
         }); //galleon
 
@@ -326,7 +316,7 @@ describe('Board', () => {
 
       it('can sink it down instantly and mark fields around it', () => {
         expect(board.sinkShip(ships[0])).toBe(true);
-        expect(board.state()[3][2]).toBe(HIT);
+        expect(board.state()[3][2]).toBe(SINK);
         expect(board.state()[2][2]).toBe(WATER); //above
         expect(board.state()[4][2]).toBe(WATER); //below
         expect(board.state()[3][1]).toBe(WATER); //left
@@ -334,7 +324,7 @@ describe('Board', () => {
         expect(ships[0].state()).toBe(SUNKEN);
       });
 
-      it('cannot sink down a ship which is not on the it', () => {
+      it('cannot sink down a ship which is not on the board', () => {
         expect(board.sinkShip(ships[1])).toBe(false);
       });
 
@@ -402,7 +392,6 @@ describe('Board', () => {
         expect(board.shoot([5, 6])).toEqual({
           result: WATER,
           ship: undefined,
-          sink: false,
         });
       });
 
@@ -410,44 +399,36 @@ describe('Board', () => {
         expect(board.shoot([5, 6])).toEqual({
           result: WATER,
           ship: undefined,
-          sink: false,
         });
         expect(board.shoot([7, 8])).toEqual({
           result: WATER,
           ship: undefined,
-          sink: false,
         });
         expect(board.shoot([2, 3])).toEqual({
-          result: HIT,
+          result: SINK,
           ship: ships[0],
-          sink: true,
         });
         expect(board.shoot([5, 5])).toEqual({
           result: WATER,
           ship: undefined,
-          sink: false,
         });
         expect(board.history()).toEqual([
           {
             result: WATER,
             target: [5, 6],
             ship: undefined,
-            sink: false,
           }, {
             result: WATER,
             target: [7, 8],
             ship: undefined,
-            sink: false,
           }, {
-            result: HIT,
+            result: SINK,
             target: [2, 3],
             ship: ships[0],
-            sink: true,
           }, {
             result: WATER,
             target: [5, 5],
             ship: undefined,
-            sink: false,
           },
         ]);
       });
@@ -458,19 +439,16 @@ describe('Board', () => {
 
         expect(board.launch([6, 6], brig)).toBe(true);
         expect(board.shoot([2, 3])).toEqual({
-          result: HIT,
+          result: SINK,
           ship: ships[0],
-          sink: true,
         });
         expect(board.shoot([6, 6])).toEqual({
           result: HIT,
           ship: brig,
-          sink: false,
         });
         expect(board.shoot([6, 7])).toEqual({
-          result: HIT,
+          result: SINK,
           ship: brig,
-          sink: true,
         });
         expect(ships[0].state()).toBe(SUNKEN);
         expect(brig.state()).toBe(SUNKEN);

@@ -5,7 +5,7 @@ import Board from './Board';
 import Player from './Player';
 
 const SHIP_TYPES = Ship.types();
-const { WATER, HIT } = Board.results();
+const { WATER, HIT, SINK } = Board.results();
 
 const UNREADY = -1;
 const READY = 0;
@@ -249,14 +249,13 @@ class Game {
       return false;
     }
 
-    let { result, sink } = player.board().shoot(target);
+    let { result } = player.board().shoot(target);
     let shootState = {
       shootingPlayer: currentPlayer,
       recievingPlayer: player,
       turn,
       target,
       result,
-      sink,
     };
 
     this._history.push(shootState);
@@ -266,7 +265,7 @@ class Game {
       this._nextTurn();
     } else if (result === HIT) {
 
-      if (sink && player.floatingShips().length === 0) {
+      if (result === SINK && player.floatingShips().length === 0) {
         this.finish([currentPlayer], [player]);
         return;
       }

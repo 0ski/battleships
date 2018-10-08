@@ -7,12 +7,14 @@ import Ship from './Ship';
 const UNREVEALED = 0;
 const WATER = 1;
 const HIT = 2;
-const RESULTS = { UNREVEALED, WATER, HIT };
+const SINK = 3;
+const RESULTS = { UNREVEALED, WATER, HIT, SINK };
 
 const NUM_2_STR = {
   [UNREVEALED]: '-',
   [WATER]: '~',
-  [HIT]: 'X',
+  [HIT]: 'Y',
+  [SINK]: 'X',
 };
 
 const SHIP_SHAPES = Ship.shapes();
@@ -234,7 +236,6 @@ class Board {
     let ship;
     let hitPointsLeft;
     let result;
-    let sink = false;
 
     if (state[targetRow][targetCol] === UNREVEALED) {
       result = state[targetRow][targetCol] = setup[targetRow][targetCol];
@@ -244,7 +245,7 @@ class Board {
 
         if (hitPointsLeft === 0) {
           this.sinkShip(ship);
-          sink = true;
+          result = SINK;
         }
       }
     } else {
@@ -254,13 +255,11 @@ class Board {
     history.push({
       target,
       result,
-      sink,
       ship,
     });
 
     return {
       result,
-      sink,
       ship,
     };
   }
@@ -292,7 +291,7 @@ class Board {
         if (i === -1 || i === size) {
           state[targetRow][Math.max(targetCol + i, 0)] = WATER;
         } else {
-          state[targetRow][Math.max(targetCol + i, 0)] = HIT;
+          state[targetRow][Math.max(targetCol + i, 0)] = SINK;
         }
 
         //row below ship
@@ -313,7 +312,7 @@ class Board {
         if (i === -1 || i === size) {
           state[Math.max(targetRow + i, 0)][targetCol] = WATER;
         } else {
-          state[Math.max(targetRow + i, 0)][targetCol] = HIT;
+          state[Math.max(targetRow + i, 0)][targetCol] = SINK;
         }
 
         //col on the right hand side of the ship

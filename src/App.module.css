@@ -102,5 +102,6 @@
 
 .currentPlayer {
   composes: player;
-  color: red;
+  font-size: 150%;
+  text-decoration: underline;
 }

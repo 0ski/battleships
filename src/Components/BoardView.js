@@ -15,6 +15,8 @@ class BoardView extends Component {
 
         if (cell === RESULTS.HIT) {
           style = 'hit';
+        } else if (cell === RESULTS.SINK) {
+          style = 'sink';
         } else if (cell === RESULTS.WATER) {
           style = 'water';
         } else {
