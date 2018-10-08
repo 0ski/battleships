@@ -1,14 +1,17 @@
-import _ from 'lodash';
-import List from 'react-list-select';
-
 import React, { Component } from 'react';
+import _ from 'lodash';
+
+import SelectionList from './SelectionList';
 import * as ComputerPlayers from '../AI';
 
 import styles from './PlayersList.module.css';
 import './list.css';
 
 const DEFAULT_STATE = {
-  selectedPlayers: [ComputerPlayers.EasyAI, ComputerPlayers.EasyAI],
+  selectedPlayers: [
+    { cls: ComputerPlayers.EasyAI, name: 'Easy' },
+    { cls: ComputerPlayers.EasyAI, name: 'Easy' },
+  ],
   firstPlayer: 0,
 };
 
@@ -20,7 +23,7 @@ class PlayersList extends Component {
     // let arr = this.state.selectedPlayers;
     // let firstPlayer = this.state.firstPlayer;
     // let players = [arr[firstPlayer]].concat(arr.splice(firstPlayer, 1));
-    let players = this.state.selectedPlayers;
+    let players = this.state.selectedPlayers.map(player => player.cls);
     if (this.props.onStartGame) {
       this.props.onStartGame(
         players
@@ -30,16 +33,19 @@ class PlayersList extends Component {
 
   constructor(props) {
     super(props);
-    this.classes = _.keys(ComputerPlayers).map(name => ComputerPlayers[name]);
-    this.players = _.keys(ComputerPlayers).map(className =>
-      className.replace('AI', '')
+    this.players = _.keys(ComputerPlayers).map(name => ({
+        name: name.replace('AI', ''),
+        cls: ComputerPlayers[name],
+      })
     );
+    window.lists = this;
   }
 
   selectPlayer(selected, index) {
     let { selectedPlayers, firstPlayer } = this.state;
     firstPlayer = index;
-    selectedPlayers[index] = this.classes[selected];
+    selectedPlayers[index] = selected;
+
     this.setState({ selectedPlayers, firstPlayer });
   }
 
@@ -60,11 +66,10 @@ class PlayersList extends Component {
         <div className={ styles.playersLists }>
           <div className={ styles.playersList }>
             <div className={ styles.playerNo }>Player 1:</div>
-            <List
+            <SelectionList
               items={ this.players }
-              multiple={ false }
-              selected={ [0] }
-              onChange={
+              selected={ this.players[0] }
+              select={
                 selected => { this.selectPlayer(selected, 0); }
               }
             />
@@ -72,11 +77,10 @@ class PlayersList extends Component {
           <div className={ styles.VS }></div>
           <div className={ styles.playersList }>
             <div className={ styles.playerNo }>Player 2:</div>
-            <List
+            <SelectionList
               items={ this.players }
-              multiple={ false }
-              selected={ [0] }
-              onChange={
+              selected={ this.players[0] }
+              select={
                 selected => { this.selectPlayer(selected, 1); }
               }
             />

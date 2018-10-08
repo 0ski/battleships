@@ -257,7 +257,7 @@ class Board {
     let result;
 
     if (state[targetRow][targetCol] === UNREVEALED) {
-      result = state[targetRow][targetCol] = setup[targetRow][targetCol];
+      result = setup[targetRow][targetCol];
       if (result === SINK) {
         ship = this._shipsBoard[targetRow][targetCol];
 
@@ -279,6 +279,8 @@ class Board {
       result,
       ship,
     });
+
+    state[targetRow][targetCol] = result;
 
     return {
       result,

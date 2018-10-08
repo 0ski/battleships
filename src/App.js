@@ -6,6 +6,7 @@ import Game from './Models/Game';
 import Menu from './Components/Menu';
 import PlayersLists from './Components/PlayersLists';
 import Battlefield from './Components/Battlefield';
+import ConclusionScreen from './Components/ConclusionScreen';
 
 const GAME_STATES = Game.states();
 
@@ -23,8 +24,15 @@ class App extends Component {
     gameRunner.startGame();
   };
 
+  mainMenu = () => {
+    let { gameRunner } = this.props.gameInterface;
+
+    gameRunner.resetGame();
+  };
+
   render() {
     let contents;
+    let afterGame;
     let { gameState } = this.props.gameInterface;
 
     if (gameState === undefined) {
@@ -47,6 +55,21 @@ class App extends Component {
       contents = 'Something went wrong! Please refresh the page.';
     }
 
+    if (gameState === GAME_STATES.FINISHED) {
+      afterGame = (
+        <div>
+          <ConclusionScreen
+            player={ this.props.gameInterface.gameRunner.winner() }
+            hidden={ gameState !== GAME_STATES.FINISHED }
+          />
+          <button
+            className={ styles.returnToMainMenu }
+            onClick={ this.mainMenu }
+          >Return to main menu</button>
+        </div>
+      );
+    }
+
     return (
       <div className={ styles.landing }>
         <div className={ styles.fog }>
@@ -55,6 +78,7 @@ class App extends Component {
           <div className={ styles.landingBackground }></div>
         </div>
         { contents }
+        { afterGame }
       </div>
     );
   }

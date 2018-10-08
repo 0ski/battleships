@@ -1,6 +1,7 @@
 import React, { Component, createContext } from 'react';
 import Game from './Models/Game';
 
+const AI_DELAY = 500;
 const GAME_STATES = Game.states();
 const DEFAULT_STATE = {
   gameState: undefined,
@@ -23,7 +24,7 @@ class GameRunner extends Component {
     players.map(PlayerCls =>
       this.game.add(
         new PlayerCls({
-          delay: 500,
+          delay: AI_DELAY,
         })
       )
     );
@@ -61,6 +62,13 @@ class GameRunner extends Component {
   getTurnNo = () => this.game.turnNo() + 1;
   getCurrentPlayer = () => this.game.currentPlayerNo();
 
+  resetGame = () => {
+    delete this.game;
+    this.setState(DEFAULT_STATE);
+  };
+
+  winner = () => this.game.winners()[0].name();
+
   render() {
     return (
       <GameContext.Provider
@@ -75,6 +83,8 @@ class GameRunner extends Component {
             getBoardState: this.getBoardState,
             getTurnNo: this.getTurnNo,
             getCurrentPlayer: this.getCurrentPlayer,
+            resetGame: this.resetGame,
+            winner: this.winner,
           },
         }}
       >

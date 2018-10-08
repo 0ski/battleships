@@ -1,0 +1,52 @@
+.modal {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(21,21,21, 0.5);
+  z-index: 100;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  top: 0;
+}
+
+.X {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  color: #fff;
+}
+
+.X::before {
+  content: "X";
+}
+
+.X:hover {
+  cursor: pointer;
+}
+
+.conclusion {
+  background-color: #212121;
+  width: 600px;
+  height: 250px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.text {
+  font-size: 50px;
+  margin: 50px 0px;
+  color: #fff;
+}
+
+.box {
+  width: 5px;
+  height: 5px;
+  margin-left: -75px;
+  box-shadow: rgb(0, 0, 0) 0px 5px 0px, rgb(0, 0, 0) 0px 10px 0px, rgb(7, 3, 2) 0px 15px 0px, rgb(0, 0, 0) 0px 20px 0px, rgb(0, 0, 0) 0px 40px 0px, rgb(5, 3, 1) 0px 45px 0px, rgb(17, 9, 5) 0px 50px 0px, rgb(11, 6, 4) 0px 55px 0px, rgb(17, 9, 4) 0px 60px 0px, rgb(27, 21, 1) 0px 65px 0px, rgb(32, 26, 0) 0px 70px 0px, rgb(4, 3, 0) 0px 75px 0px, rgb(0, 0, 0) 5px 0px 0px, rgb(1, 0, 0) 5px 5px 0px, rgb(62, 36, 18) 5px 10px 0px, rgb(89, 51, 24) 5px 15px 0px, rgb(0, 0, 0) 5px 20px 0px, rgb(0, 0, 0) 5px 25px 0px, rgb(0, 0, 0) 5px 30px 0px, rgb(0, 0, 0) 5px 35px 0px, rgb(3, 2, 1) 5px 40px 0px, rgb(61, 33, 16) 5px 45px 0px, rgb(125, 72, 37) 5px 50px 0px, rgb(90, 55, 32) 5px 55px 0px, rgb(120, 68, 32) 5px 60px 0px, rgb(226, 173, 8) 5px 65px 0px, rgb(255, 196, 0) 5px 70px 0px, rgb(29, 22, 0) 5px 75px 0px, rgb(2, 2, 1) 10px 0px 0px, rgb(71, 40, 21) 10px 5px 0px, rgb(120, 68, 33) 10px 10px 0px, rgb(119, 69, 32) 10px 15px 0px, rgb(0, 0, 0) 10px 20px 0px, rgb(0, 0, 0) 10px 25px 0px, rgb(0, 0, 0) 10px 30px 0px, rgb(5, 3, 1) 10px 35px 0px, rgb(81, 46, 21) 10px 40px 0px, rgb(81, 46, 21) 10px 45px 0px, rgb(125, 73, 37) 10px 50px 0px, rgb(81, 53, 31) 10px 55px 0px, rgb(119, 69, 33) 10px 60px 0px, rgb(173, 131, 15) 10px 65px 0px, rgb(201, 147, 11) 10px 70px 0px, rgb(23, 16, 1) 10px 75px 0px, rgb(16, 8, 4) 15px 0px 0px, rgb(127, 73, 37) 15px 5px 0px, rgb(120, 67, 32) 15px 10px 0px, rgb(121, 67, 32) 15px 15px 0px, rgb(0, 0, 0) 15px 20px 0px, rgb(0, 0, 0) 15px 25px 0px, rgb(3, 2, 1) 15px 30px 0px, rgb(30, 17, 7) 15px 35px 0px, rgb(80, 46, 21) 15px 40px 0px, rgb(80, 46, 22) 15px 45px 0px, rgb(125, 73, 36) 15px 50px 0px, rgb(91, 55, 32) 15px 55px 0px, rgb(121, 67, 32) 15px 60px 0px, rgb(83, 52, 32) 15px 65px 0px, rgb(115, 66, 31) 15px 70px 0px, rgb(13, 7, 4) 15px 75px 0px, rgb(16, 9, 5) 20px 0px 0px, rgb(129, 72, 37) 20px 5px 0px, rgb(120, 68, 33) 20px 10px 0px, rgb(120, 68, 33) 20px 15px 0px, rgb(0, 0, 0) 20px 20px 0px, rgb(0, 0, 0) 20px 25px 0px, rgb(2, 1, 1) 20px 30px 0px, rgb(23, 13, 6) 20px 35px 0px, rgb(81, 46, 22) 20px 40px 0px, rgb(81, 44, 22) 20px 45px 0px, rgb(126, 72, 37) 20px 50px 0px, rgb(94, 58, 32) 20px 55px 0px, rgb(120, 68, 33) 20px 60px 0px, rgb(82, 53, 32) 20px 65px 0px, rgb(114, 65, 32) 20px 70px 0px, rgb(12, 7, 3) 20px 75px 0px, rgb(16, 9, 5) 25px 0px 0px, rgb(123, 71, 35) 25px 5px 0px, rgb(118, 67, 32) 25px 10px 0px, rgb(119, 67, 32) 25px 15px 0px, rgb(0, 0, 0) 25px 20px 0px, rgb(0, 0, 0) 25px 25px 0px, rgb(1, 1, 1) 25px 30px 0px, rgb(39, 23, 9) 25px 35px 0px, rgb(81, 46, 22) 25px 40px 0px, rgb(80, 45, 22) 25px 45px 0px, rgb(125, 73, 36) 25px 50px 0px, rgb(92, 57, 32) 25px 55px 0px, rgb(119, 68, 32) 25px 60px 0px, rgb(81, 55, 32) 25px 65px 0px, rgb(114, 66, 31) 25px 70px 0px, rgb(12, 7, 3) 25px 75px 0px, rgb(16, 9, 5) 30px 0px 0px, rgb(124, 71, 35) 30px 5px 0px, rgb(158, 111, 23) 30px 10px 0px, rgb(211, 162, 11) 30px 15px 0px, rgb(0, 0, 0) 30px 20px 0px, rgb(0, 0, 0) 30px 25px 0px, rgb(0, 0, 0) 30px 30px 0px, rgb(43, 24, 12) 30px 35px 0px, rgb(80, 44, 22) 30px 40px 0px, rgb(79, 44, 22) 30px 45px 0px, rgb(215, 175, 11) 30px 50px 0px, rgb(213, 161, 8) 30px 55px 0px, rgb(179, 121, 19) 30px 60px 0px, rgb(82, 51, 33) 30px 65px 0px, rgb(115, 66, 32) 30px 70px 0px, rgb(13, 7, 4) 30px 75px 0px, rgb(16, 9, 5) 35px 0px 0px, rgb(122, 70, 35) 35px 5px 0px, rgb(255, 213, 1) 35px 10px 0px, rgb(255, 204, 0) 35px 15px 0px, rgb(0, 0, 0) 35px 20px 0px, rgb(0, 0, 0) 35px 25px 0px, rgb(0, 0, 0) 35px 30px 0px, rgb(43, 24, 12) 35px 35px 0px, rgb(80, 45, 22) 35px 40px 0px, rgb(79, 46, 22) 35px 45px 0px, rgb(223, 187, 0) 35px 50px 0px, rgb(189, 151, 0) 35px 55px 0px, rgb(224, 163, 6) 35px 60px 0px, rgb(81, 51, 32) 35px 65px 0px, rgb(113, 65, 31) 35px 70px 0px, rgb(12, 7, 3) 35px 75px 0px, rgb(16, 9, 5) 40px 0px 0px, rgb(123, 71, 35) 40px 5px 0px, rgb(253, 213, 2) 40px 10px 0px, rgb(255, 204, 0) 40px 15px 0px, rgb(0, 0, 0) 40px 20px 0px, rgb(0, 0, 0) 40px 25px 0px, rgb(0, 0, 0) 40px 30px 0px, rgb(43, 24, 13) 40px 35px 0px, rgb(80, 45, 22) 40px 40px 0px, rgb(79, 45, 22) 40px 45px 0px, rgb(223, 187, 0) 40px 50px 0px, rgb(159, 128, 0) 40px 55px 0px, rgb(224, 162, 7) 40px 60px 0px, rgb(82, 51, 32) 40px 65px 0px, rgb(114, 65, 31) 40px 70px 0px, rgb(12, 7, 3) 40px 75px 0px, rgb(16, 9, 5) 45px 0px 0px, rgb(123, 71, 34) 45px 5px 0px, rgb(154, 106, 25) 45px 10px 0px, rgb(189, 140, 16) 45px 15px 0px, rgb(0, 0, 0) 45px 20px 0px, rgb(0, 0, 0) 45px 25px 0px, rgb(0, 0, 0) 45px 30px 0px, rgb(43, 23, 12) 45px 35px 0px, rgb(80, 44, 22) 45px 40px 0px, rgb(79, 44, 22) 45px 45px 0px, rgb(223, 182, 10) 45px 50px 0px, rgb(211, 161, 8) 45px 55px 0px, rgb(179, 120, 19) 45px 60px 0px, rgb(82, 52, 33) 45px 65px 0px, rgb(115, 66, 32) 45px 70px 0px, rgb(13, 7, 3) 45px 75px 0px, rgb(16, 9, 5) 50px 0px 0px, rgb(122, 71, 35) 50px 5px 0px, rgb(118, 67, 32) 50px 10px 0px, rgb(119, 68, 32) 50px 15px 0px, rgb(0, 0, 0) 50px 20px 0px, rgb(0, 0, 0) 50px 25px 0px, rgb(0, 0, 0) 50px 30px 0px, rgb(43, 24, 11) 50px 35px 0px, rgb(81, 46, 22) 50px 40px 0px, rgb(80, 46, 22) 50px 45px 0px, rgb(125, 73, 36) 50px 50px 0px, rgb(90, 57, 32) 50px 55px 0px, rgb(119, 68, 32) 50px 60px 0px, rgb(82, 53, 32) 50px 65px 0px, rgb(114, 66, 31) 50px 70px 0px, rgb(13, 7, 3) 50px 75px 0px, rgb(16, 9, 5) 55px 0px 0px, rgb(128, 71, 36) 55px 5px 0px, rgb(120, 68, 33) 55px 10px 0px, rgb(120, 68, 33) 55px 15px 0px, rgb(0, 0, 0) 55px 20px 0px, rgb(0, 0, 0) 55px 25px 0px, rgb(3, 2, 1) 55px 30px 0px, rgb(39, 21, 10) 55px 35px 0px, rgb(81, 46, 22) 55px 40px 0px, rgb(81, 44, 22) 55px 45px 0px, rgb(125, 72, 37) 55px 50px 0px, rgb(94, 57, 32) 55px 55px 0px, rgb(120, 68, 33) 55px 60px 0px, rgb(82, 52, 31) 55px 65px 0px, rgb(115, 65, 32) 55px 70px 0px, rgb(12, 7, 4) 55px 75px 0px, rgb(16, 8, 5) 60px 0px 0px, rgb(127, 73, 37) 60px 5px 0px, rgb(120, 67, 32) 60px 10px 0px, rgb(120, 67, 32) 60px 15px 0px, rgb(0, 0, 0) 60px 20px 0px, rgb(3, 2, 1) 60px 25px 0px, rgb(5, 3, 1) 60px 30px 0px, rgb(25, 14, 6) 60px 35px 0px, rgb(80, 46, 21) 60px 40px 0px, rgb(80, 45, 22) 60px 45px 0px, rgb(125, 72, 36) 60px 50px 0px, rgb(93, 54, 32) 60px 55px 0px, rgb(120, 67, 32) 60px 60px 0px, rgb(83, 51, 32) 60px 65px 0px, rgb(114, 66, 31) 60px 70px 0px, rgb(12, 7, 3) 60px 75px 0px, rgb(3, 2, 1) 65px 0px 0px, rgb(72, 40, 22) 65px 5px 0px, rgb(120, 68, 33) 65px 10px 0px, rgb(119, 69, 32) 65px 15px 0px, rgb(0, 0, 0) 65px 20px 0px, rgb(5, 3, 1) 65px 25px 0px, rgb(0, 0, 0) 65px 30px 0px, rgb(4, 3, 1) 65px 35px 0px, rgb(81, 46, 21) 65px 40px 0px, rgb(81, 45, 21) 65px 45px 0px, rgb(125, 73, 37) 65px 50px 0px, rgb(92, 57, 31) 65px 55px 0px, rgb(120, 68, 33) 65px 60px 0px, rgb(173, 132, 16) 65px 65px 0px, rgb(200, 146, 12) 65px 70px 0px, rgb(22, 16, 1) 65px 75px 0px, rgb(0, 0, 0) 70px 0px 0px, rgb(1, 0, 0) 70px 5px 0px, rgb(62, 36, 18) 70px 10px 0px, rgb(89, 51, 24) 70px 15px 0px, rgb(0, 0, 0) 70px 20px 0px, rgb(0, 0, 0) 70px 25px 0px, rgb(0, 0, 0) 70px 30px 0px, rgb(0, 0, 0) 70px 35px 0px, rgb(4, 2, 1) 70px 40px 0px, rgb(67, 36, 18) 70px 45px 0px, rgb(124, 71, 36) 70px 50px 0px, rgb(85, 53, 32) 70px 55px 0px, rgb(120, 68, 32) 70px 60px 0px, rgb(226, 174, 7) 70px 65px 0px, rgb(255, 196, 0) 70px 70px 0px, rgb(28, 21, 0) 70px 75px 0px, rgb(0, 0, 0) 75px 5px 0px, rgb(0, 0, 0) 75px 10px 0px, rgb(7, 3, 2) 75px 15px 0px, rgb(0, 0, 0) 75px 20px 0px, rgb(0, 0, 0) 75px 40px 0px, rgb(6, 4, 2) 75px 45px 0px, rgb(17, 9, 5) 75px 50px 0px, rgb(11, 6, 4) 75px 55px 0px, rgb(17, 9, 4) 75px 60px 0px, rgb(27, 21, 1) 75px 65px 0px, rgb(32, 26, 0) 75px 70px 0px, rgb(4, 3, 0) 75px 75px 0px;
+}
