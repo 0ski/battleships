@@ -26,15 +26,8 @@ class Game {
     return STATE_ENUMS;
   }
 
-  //Standard BATTLESHIPS rules:
-  //10x10 board for following ships:
-  //four one-sized
-  //three two-sized
-  //two three-sized
-  //one four-sized
-  constructor({
-    dim=[10, 10],
-    shipTypes=[
+  static defaultShipTypesList() {
+    return [
       SHIP_TYPES[0],
       SHIP_TYPES[0],
       SHIP_TYPES[0],
@@ -45,7 +38,22 @@ class Game {
       SHIP_TYPES[2],
       SHIP_TYPES[2],
       SHIP_TYPES[3],
-    ],
+    ];
+  }
+
+  static defaultDim() {
+    return [10, 10];
+  }
+
+  //Standard BATTLESHIPS rules:
+  //10x10 board for following ships:
+  //four one-sized
+  //three two-sized
+  //two three-sized
+  //one four-sized
+  constructor({
+    dim=Game.defaultDim(),
+    shipTypes=Game.defaultShipTypesList(),
   } = {}) {
     this._dim = dim;
     this._shipTypes = shipTypes;

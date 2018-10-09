@@ -66,6 +66,7 @@
   text-align: center;
   text-decoration: none;
   display: inline-block;
+  font-family: "Yoster";
   font-size: 16px;
 }
 
@@ -74,7 +75,6 @@
 }
 
 .returnToMainMenu {
-  font-family: "Yoster";
   composes: Button;
   position: fixed;
   right: 15px;

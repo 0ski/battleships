@@ -10,7 +10,7 @@ class BoardView extends Component {
     let { dim, boardState } = this.props;
     let [totalCol, totalRow] = dim;
     let cells = _.flatten(boardState).map(
-      cell => {
+      (cell, index) => {
         let style;
 
         if (cell === RESULTS.HIT) {
@@ -23,7 +23,7 @@ class BoardView extends Component {
           style = 'unrevealed';
         }
 
-        return <div className={ styles[style] }></div>;
+        return <div key={ index } className={ styles[style] }></div>;
       }
     );
 

@@ -51,11 +51,11 @@ class EasyAI extends Player {
     }
   }
 
-  turn(opponents, prevShootState) {
+  async turn(opponents, prevShootState) {
     let delay = this._delay;
 
     if (delay === undefined) {
-      return this._turn(opponents, prevShootState);
+      return await this._turn(opponents, prevShootState);
     } else {
       return new Promise((resolve, reject) => {
         setTimeout(() => resolve(this._turn(opponents, prevShootState)), delay);

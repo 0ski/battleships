@@ -43,7 +43,7 @@ class MediumAI extends EasyAI {
     });
   }
 
-  _turn(opponents, prevShootState) {
+  async _turn(opponents, prevShootState) {
     let prevResult = prevShootState.result;
     let { firstCellHit, orientationOfHuntedShip, lastCellHit } = this;
     let available = [];

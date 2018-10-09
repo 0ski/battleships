@@ -8,14 +8,12 @@ export default class GameConsumer extends Component {
     return (
       <GameContext.Consumer>
         {
-          (gameInterface => {
-            console.log(gameInterface);
-            return Children.map(children, child =>
-              cloneElement(child, {
-                gameInterface,
-              })
-            );
-          })
+          (gameInterface => Children.map(
+            children,
+            child => cloneElement(child, {
+              gameInterface,
+            })
+          ))
         }
       </GameContext.Consumer>
     );
