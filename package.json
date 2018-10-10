@@ -1,5 +1,6 @@
 {
   "name": "battleships",
+  "homepage": "https://0ski.github.io/battleships/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
