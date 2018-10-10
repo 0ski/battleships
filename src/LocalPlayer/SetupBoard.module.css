@@ -1,0 +1,41 @@
+.setup {
+  padding-top: 25px;
+}
+
+.boardSetup {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.controls {
+  margin-top: 15px;
+  margin-right: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.info {
+  margin: 15px;
+}
+
+.reset {
+  composes: Button from "../App.module.css";
+  margin: 15px;
+}
+
+.rnd {
+  composes: Button from "../App.module.css";
+  margin: 15px;
+}
+
+.start {
+  composes: Button from "../App.module.css";
+  margin: 15px;
+}
+
+.disabled {
+  composes: DisabledButton from "../App.module.css";
+  margin: 15px;
+}

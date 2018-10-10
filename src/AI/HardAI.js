@@ -1,7 +1,7 @@
 import nj from 'numjs';
 
 import MediumAI from './MediumAI';
-import * as data from '../static/data.json';
+import * as data from '../static/229-data.json';
 
 const DATA = nj.array(data.default).reshape(100);
 const PRIME = 229;
@@ -27,7 +27,6 @@ class HardAI extends MediumAI {
       let max = data.max();
       data = data.subtract(max);
       let prob = nj.softmax(data);
-      console.log(prob);
       max = prob.max();
       let index = prob.tolist().indexOf(max);
       proposition.target = [index % 10, Math.floor(index / 10)];

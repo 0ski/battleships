@@ -1,3 +1,12 @@
 .right {
   text-align: end;
 }
+
+.wrapper {
+  display: initial;
+}
+
+.clickable {
+  display: inline-grid;
+  cursor: pointer;
+}

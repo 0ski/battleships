@@ -219,7 +219,7 @@ class Board {
     ships.forEach(item => this.remove(item.ship));
   }
 
-  launchRandomly(ships, { seed=undefined, keepShape=false }) {
+  launchRandomly(ships, { seed=undefined, keepShape=false }={}) {
     //Cast ship board placement to array of ships
     ships = ships.map(ship => ship.ship ? ship.ship : ship);
     let solvable = true;

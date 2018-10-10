@@ -3,6 +3,7 @@ import styles from './Battlefield.module.css';
 
 import ShipList from './ShipList';
 import BoardView from './BoardView';
+import LocalPlayer from '../LocalPlayer/LocalPlayer';
 
 class Battlefield extends Component {
 
@@ -10,9 +11,29 @@ class Battlefield extends Component {
     let { gameRunner } = this.props.gameInterface;
     let players = gameRunner.getPlayers();
 
+    let boardOneMode = players[1] instanceof LocalPlayer ? 'battle' : 'view';
+    let boardTwoMode = players[0] instanceof LocalPlayer ? 'battle' : 'view';
+
+    if (players[0] instanceof LocalPlayer) {
+      if (gameRunner.getCurrentPlayer() === 0) {
+        boardTwoMode = 'battle';
+      } else {
+        boardTwoMode = 'view';
+      }
+    } else if (players[1] instanceof LocalPlayer) {
+      if (gameRunner.getCurrentPlayer() === 0) {
+        boardOneMode = 'battle';
+      } else {
+        boardOneMode = 'view';
+      }
+    }
+
     return (
       <div className={ styles.battlefield }>
         <div className={ styles.leftShipList }>
+          <div className={ styles.fleetName }>
+            { `${players[0].name()} fleet:` }
+          </div>
           <ShipList
             ships={ players[0].ships() }
           ></ShipList>
@@ -36,16 +57,21 @@ class Battlefield extends Component {
             { players[1].name() }
           </div>
           <BoardView
-            boardState={ gameRunner.getBoardState(0) }
-            dim={ gameRunner.getBoardDim() }
+            board={ players[0].board() }
+            mode={ boardOneMode }
+            fire={ gameRunner.finishLocalPlayerTurn }
           />
           <div className={ styles.gap }></div>
           <BoardView
-            boardState={ gameRunner.getBoardState(1) }
-            dim={ gameRunner.getBoardDim() }
+            board={ players[1].board() }
+            mode={ boardTwoMode }
+            fire={ gameRunner.finishLocalPlayerTurn }
           />
         </div>
         <div className={ styles.rightShipList }>
+          <div className={ styles.fleetName }>
+            { `${players[1].name()} fleet:` }
+          </div>
           <ShipList
             ships={ players[1].ships() }
             side={ 'right' }

@@ -2,6 +2,14 @@
   margin: 10px 5px;
 }
 
+.highlightedShip {
+  composes: ship;
+}
+
+.highlightedShip .structure {
+  border: 1px #212121 solid;
+}
+
 .structure {
   display: inline-grid;
   grid-gap: 3px;

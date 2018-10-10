@@ -8,6 +8,7 @@
 
 .sideShipList {
   margin: 0 2%;
+  width: 100%;
 }
 
 .leftShipList {
@@ -39,4 +40,10 @@
   composes: player;
   font-size: 150%;
   text-decoration: underline;
+}
+
+.fleetName {
+  font-size: 20px;
+  margin: 20px 0;
+  text-align: center;
 }

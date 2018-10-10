@@ -11,7 +11,7 @@ const dim = Game.defaultDim();
 let boardCellData = nj.ones(dim);
 let ships = Game.defaultShipTypesList().map(type => new Ship(type));
 
-fit('', () => {
+xit('', () => {
   for (let i = 1; i <= NO_OF_BOARDS; i++) {
     let board = new Board();
     if (board.launchRandomly(ships, { seed: i })) {

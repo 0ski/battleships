@@ -3,6 +3,7 @@ import seedrandom from 'seedrandom';
 import Player from '../Models/Player';
 
 const PRIME = 229;
+const NUM = PRIME;
 
 class EasyAI extends Player {
 
@@ -24,7 +25,7 @@ class EasyAI extends Player {
   }
 
   random() {
-    return Math.floor(this._random() * PRIME);
+    return Math.floor(this._random() * NUM);
   }
 
   ready() {

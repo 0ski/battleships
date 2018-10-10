@@ -3,21 +3,20 @@ import _ from 'lodash';
 
 import SelectionList from './SelectionList';
 import * as ComputerPlayers from '../AI';
+import LocalPlayer from '../LocalPlayer/LocalPlayer';
 
 import styles from './PlayersList.module.css';
 import './list.css';
 
-const DEFAULT_STATE = {
-  selectedPlayers: [
-    { cls: ComputerPlayers.EasyAI, name: 'Easy' },
-    { cls: ComputerPlayers.EasyAI, name: 'Easy' },
-  ],
-  firstPlayer: 0,
-};
-
 class PlayersList extends Component {
 
-  state = DEFAULT_STATE;
+  state = {
+    selectedPlayers: [
+      { cls: ComputerPlayers.EasyAI, name: 'Easy' },
+      { cls: ComputerPlayers.EasyAI, name: 'Easy' },
+    ],
+    firstPlayer: 0,
+  };
 
   startGame = () => {
     // let arr = this.state.selectedPlayers;
@@ -38,7 +37,11 @@ class PlayersList extends Component {
         cls: ComputerPlayers[name],
       })
     );
-    window.lists = this;
+    this.playersWithLocal = _.clone(this.players);
+    this.playersWithLocal.push({
+      cls: LocalPlayer,
+      name: 'Local Player',
+    });
   }
 
   selectPlayer(selected, index) {
@@ -67,7 +70,7 @@ class PlayersList extends Component {
           <div className={ styles.playersList }>
             <div className={ styles.playerNo }>Player 1:</div>
             <SelectionList
-              items={ this.players }
+              items={ this.playersWithLocal }
               selected={ this.players[0] }
               select={
                 selected => { this.selectPlayer(selected, 0); }

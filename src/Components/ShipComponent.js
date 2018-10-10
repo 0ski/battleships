@@ -3,7 +3,7 @@ import styles from './ShipComponent.module.css';
 
 class ShipComponent extends Component {
   render() {
-    let { name, size, hitpoints } = this.props;
+    let { name, size, hitpoints, highlight } = this.props;
     let damage = size - hitpoints;
     let structure = [];
 
@@ -20,7 +20,7 @@ class ShipComponent extends Component {
     }
 
     return (
-      <div className={ styles.ship }>
+      <div className={ highlight ? styles.highlightedShip : styles.ship }>
         <div className={ styles.name }>{ name }</div>
         <div className={ styles.structure }>
           { structure }

@@ -74,6 +74,15 @@
   cursor: pointer;
 }
 
+.DisabledButton {
+  composes: Button;
+  background-color: #212121;
+}
+
+.DisabledButton:hover {
+  cursor: initial;
+}
+
 .returnToMainMenu {
   composes: Button;
   position: fixed;

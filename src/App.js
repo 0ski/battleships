@@ -7,6 +7,7 @@ import Menu from './Components/Menu';
 import PlayersLists from './Components/PlayersLists';
 import Battlefield from './Components/Battlefield';
 import ConclusionScreen from './Components/ConclusionScreen';
+import SetupBoard from './LocalPlayer/SetupBoard';
 
 const GAME_STATES = Game.states();
 
@@ -33,7 +34,7 @@ class App extends Component {
   render() {
     let contents;
     let afterGame;
-    let { gameState } = this.props.gameInterface;
+    let { gameState, gameRunner } = this.props.gameInterface;
 
     if (gameState === undefined) {
       contents = <Menu newGame={ this.createNewGame }></Menu>;
@@ -44,6 +45,13 @@ class App extends Component {
             onStartGame={ this.addPlayersAndStartGame }
           />
         </div>
+      );
+    } else if (gameState === GAME_STATES.SETUP) {
+      contents = (
+        <SetupBoard
+          player = { gameRunner.getLocalPlayer() }
+          start = { gameRunner.finishLocalPlayerSetup }
+        />
       );
     } else if (gameState === GAME_STATES.BATTLE || gameState === GAME_STATES.FINISHED) {
       contents = (
