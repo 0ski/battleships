@@ -66,6 +66,17 @@ class SetupBoard extends Component {
   start = () => this.props.start();
 
   render() {
+    let rotateButton = '';
+
+    if (this.state.activeShip) {
+      rotateButton = (
+        <button
+          onClick={ this.rotate }
+          className={ styles.btn }
+        >Rotate</button>
+      );
+    }
+
     return (
       <div className={ styles.setup }>
         <ShipList
@@ -73,6 +84,7 @@ class SetupBoard extends Component {
           ships={ this.state.ships }
           activeShip={ this.state.activeShip }
           onClick={ this.takeShip }
+          side={ 'left' }
         />
         <div className={ styles.boardSetup }>
           <BoardView
@@ -84,14 +96,15 @@ class SetupBoard extends Component {
           />
         </div>
         <div className={ styles.controls }>
-          <div className={ styles.info }>
+          {/* <div className={ styles.info }>
             Click on a ship from your fleet to place it on the board,
             <br/>
             when ship is active press 'r' to rotate
-          </div>
+          </div> */}
+          { rotateButton }
           <button
             onClick={ this.reset }
-            className={ styles.reset }
+            className={ styles.btn }
           >Reset board</button>
           <button
             onClick={ this.rnd }

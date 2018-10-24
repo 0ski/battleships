@@ -47,3 +47,17 @@
   margin: 20px 0;
   text-align: center;
 }
+
+@media(max-width: 1024px) {
+  .fleetName {
+    font-size: 40%;
+  }
+
+  .currentPlayer {
+    font-size: 80%;
+  }
+
+  .player {
+    font-size: 65%;
+  }
+}

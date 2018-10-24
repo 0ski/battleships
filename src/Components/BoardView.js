@@ -12,6 +12,7 @@ class BoardView extends Component {
 
   state = {
     activeIndex: undefined,
+    touch: false,
   };
 
   componentDidMount() {
@@ -26,19 +27,63 @@ class BoardView extends Component {
     }
   }
 
+  getIndexOfCell(target) {
+    let parent = target.parentElement;
+    return Array.from(parent.children).indexOf(target);
+  }
+
   keyDown = e => {
     if (e.key === 'r' && this.props.mode === 'setup') {
       this.props.onRotate();
     }
   };
 
-  mouseOut = () => this.setState({ activeIndex: undefined });
+  mouseUp = (isValidPosition, boardTarget, e) => {
+    if (this.state.touch) {
+      this.touch(isValidPosition, boardTarget, e);
+    } else {
+      this.launch(isValidPosition, boardTarget);
+    }
+
+    this.setState({ touch: false });
+  };
+
+  touchStart = () => {
+    this.setState({ touch: true });
+  };
+
+  touch = (isValidPosition, boardTarget, e) => {
+    let DOMTarget = e.target;
+    if (!DOMTarget.childElementCount) {
+      let { board, activeShip } = this.props;
+      let activeIndex = this.state.activeIndex;
+      let index = this.getIndexOfCell(DOMTarget);
+      console.log(activeIndex, index);
+      if (activeIndex === index) {
+        this.launch(
+          isValidPosition,
+          boardTarget
+        );
+      } else {
+        this.setState({
+          activeIndex: index,
+        });
+        console.log(this.state, index);
+      }
+    }
+  };
+
+  mouseOut = () => {
+    if (!this.state.touch) {
+      this.setState({ activeIndex: undefined });
+    }
+  };
+
   mouseMove = e => {
     let target = e.target;
     if (!target.childElementCount) {
-      let parent = target.parentElement;
       this.setState({
-        activeIndex: Array.from(parent.children).indexOf(target),
+        activeIndex: this.getIndexOfCell(target),
       });
     }
   };
@@ -100,6 +145,7 @@ class BoardView extends Component {
   }
 
   launch = (isValidPosition, target) => {
+    console.log('launch');
     if (isValidPosition) {
       this.setState({
         activeIndex: undefined,
@@ -115,7 +161,7 @@ class BoardView extends Component {
     let { activeIndex } = this.state;
     let dim = board.dim();
     let style;
-    let target;
+    let boardTarget;
     let isValidPosition;
     let isValidShootingTarget;
     let boardState;
@@ -128,10 +174,10 @@ class BoardView extends Component {
       boardState = board.state();
     }
 
-    target = [activeIndex % 10, Math.floor(activeIndex / 10)];
-    isValidShootingTarget = Board.verifyShootingTarget(board, target);
+    boardTarget = [activeIndex % 10, Math.floor(activeIndex / 10)];
+    isValidShootingTarget = Board.verifyShootingTarget(board, boardTarget);
     if (activeShip) {
-      isValidPosition = Board.verifyShipPosition(board, target, activeShip);
+      isValidPosition = Board.verifyShipPosition(board, boardTarget, activeShip);
     }
 
     let [totalCol, totalRow] = dim;
@@ -146,13 +192,15 @@ class BoardView extends Component {
     let onClickCallback;
     let onMoveCallback;
     let onLeaveCallback;
+    let onTouch;
 
     if (mode === 'setup' && activeShip) {
-      onClickCallback = this.launch.bind(this, isValidPosition, target);
+      onClickCallback = this.mouseUp.bind(this, isValidPosition, boardTarget);
       onMoveCallback = this.mouseMove;
       onLeaveCallback = this.mouseOut;
+      onTouch = this.touchStart;
     } else if (mode === 'battle') {
-      onClickCallback = isValidShootingTarget ? this.fire.bind(this, target) : _.noop;
+      onClickCallback = isValidShootingTarget ? this.fire.bind(this, boardTarget) : _.noop;
       onMoveCallback = this.mouseMove;
       onLeaveCallback = this.mouseOut;
     } else {
@@ -166,7 +214,8 @@ class BoardView extends Component {
         className={ `${styles.board} ${styles[mode]}` }
         onPointerMove={ onMoveCallback }
         onPointerLeave={ onLeaveCallback }
-        onClick={ onClickCallback }
+        onMouseUp={ onClickCallback }
+        onTouchStart={ onTouch }
         style={{
           gridTemplateColumns: `repeat(${totalCol}, 1fr )`,
           gridTemplateRows: `repeat(${totalRow}, 1fr )`,

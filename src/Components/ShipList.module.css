@@ -10,3 +10,12 @@
   display: inline-grid;
   cursor: pointer;
 }
+
+.left {
+  display: inline-flex;
+  flex-flow: column;
+}
+
+.right {
+
+}

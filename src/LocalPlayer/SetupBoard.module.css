@@ -1,41 +1,49 @@
 .setup {
-  padding-top: 25px;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
 }
 
 .boardSetup {
-  display: flex;
-  justify-content: center;
-  margin-top: 15px;
+
 }
 
 .controls {
-  margin-top: 15px;
-  margin-right: 15%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  position: fixed;
+  right: 15px;
+  bottom: 15px;
 }
 
 .info {
-  margin: 15px;
+  margin: 5px;
 }
 
-.reset {
+.btn {
   composes: Button from "../App.module.css";
-  margin: 15px;
+  margin: 1px;
 }
 
 .rnd {
   composes: Button from "../App.module.css";
-  margin: 15px;
+  margin: 1px;
 }
 
 .start {
   composes: Button from "../App.module.css";
-  margin: 15px;
+  margin: 1px;
 }
 
 .disabled {
   composes: DisabledButton from "../App.module.css";
-  margin: 15px;
+  margin: 1px;
+}
+
+@media(max-width: 1024px) {
+  .boardSetup {
+
+  }
+
+  .controls {
+    font-size: 65%;
+  }
 }

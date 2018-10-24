@@ -6,7 +6,7 @@ const SHAPES = {
 // http://www.pirateglossary.com/ships/
 const TYPES = [
   { name: 'Sloop', size: 1 },
-  { name: 'Brigantine', size: 2 },
+  { name: 'Brig', size: 2 },
   { name: 'Frigate', size: 3 },
   { name: 'Galleon', size: 4 },
 ];

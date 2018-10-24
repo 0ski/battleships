@@ -83,14 +83,25 @@
   cursor: initial;
 }
 
-.returnToMainMenu {
+.controlButton {
   composes: Button;
   position: fixed;
   right: 15px;
   bottom: 15px;
 }
 
+.returnToMainMenu {
+  composes: controlButton;
+}
+
 @keyframes marquee {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-200vw, 0, 0); }
+}
+
+@media(max-width: 1024px) {
+  .Button {
+    font-size: 85%;
+    padding: 5px 10px;
+  }
 }

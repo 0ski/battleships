@@ -3,24 +3,22 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 40%;
+  width: 100%;
   margin: 0 auto;
 }
 
 .playersLists {
   margin-top: 5%;
+  width: 100%;
   flex: 1;
   display: inline-grid;
   grid-auto-flow: column;
   grid-auto-columns: min-content;
-  grid-template-columns: 2fr 5fr 2fr;
+  grid-template-columns: 5fr 1fr 5fr;
 }
 
 .startGame {
-  composes: Button from "../App.module.css";
-  flex: 1;
-  align-self: flex-end;
-  margin-top: 5%;
+  composes: controlButton from "../App.module.css";
 }
 
 .firstPlayer {
@@ -35,7 +33,9 @@
 
 .playersList li {
   min-width: 100px;
+  max-width: 150px;
   text-align: center;
+  margin: 0 auto;
 }
 
 .VS {
@@ -51,4 +51,5 @@
 
 .playerNo {
   margin-bottom: 15px;
+  text-align: center;
 }

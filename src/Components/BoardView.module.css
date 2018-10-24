@@ -92,3 +92,15 @@
   composes: active;
   border: 1px solid red;
 }
+
+@media(max-width: 1024px) {
+  .cell {
+    width: 24px;
+    height: 24px;
+  }
+
+  .board {
+    grid-gap: 1px;
+    padding: 7px;
+  }
+}
