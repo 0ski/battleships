@@ -8,6 +8,7 @@ import Ship from '../Models/Ship';
 const RESULTS = Board.results();
 const { HORIZONTAL, VERTICAL } = Ship.shapes();
 
+//ToDo: Divide the class to three classes: standard board, setup board, active board
 class BoardView extends Component {
 
   state = {
@@ -52,10 +53,19 @@ class BoardView extends Component {
     this.setState({ touch: true });
   };
 
+  touchStartFire = e => {
+    let target = e.target;
+    if (!target.childElementCount) {
+      this.setState({
+        activeIndex: this.getIndexOfCell(target),
+        touch: true,
+      });
+    }
+  };
+
   touch = (isValidPosition, boardTarget, e) => {
     let DOMTarget = e.target;
     if (!DOMTarget.childElementCount) {
-      let { board, activeShip } = this.props;
       let activeIndex = this.state.activeIndex;
       let index = this.getIndexOfCell(DOMTarget);
       console.log(activeIndex, index);
@@ -192,17 +202,24 @@ class BoardView extends Component {
     let onClickCallback;
     let onMoveCallback;
     let onLeaveCallback;
-    let onTouch;
+    let onTouchStart;
+    let onTouchEnd = _.noop;
 
     if (mode === 'setup' && activeShip) {
       onClickCallback = this.mouseUp.bind(this, isValidPosition, boardTarget);
       onMoveCallback = this.mouseMove;
       onLeaveCallback = this.mouseOut;
-      onTouch = this.touchStart;
+      onTouchStart = this.touchStart;
     } else if (mode === 'battle') {
       onClickCallback = isValidShootingTarget ? this.fire.bind(this, boardTarget) : _.noop;
       onMoveCallback = this.mouseMove;
       onLeaveCallback = this.mouseOut;
+      onTouchStart = this.touchStartFire;
+      onTouchEnd = e => {
+        if (isValidShootingTarget) {
+          this.fire(boardTarget);
+        }
+      };
     } else {
       onClickCallback = _.noop;
       onMoveCallback = _.noop;
@@ -215,7 +232,8 @@ class BoardView extends Component {
         onPointerMove={ onMoveCallback }
         onPointerLeave={ onLeaveCallback }
         onMouseUp={ onClickCallback }
-        onTouchStart={ onTouch }
+        onTouchStart={ onTouchStart }
+        onTouchEnd={ onTouchEnd }
         style={{
           gridTemplateColumns: `repeat(${totalCol}, 1fr )`,
           gridTemplateRows: `repeat(${totalRow}, 1fr )`,

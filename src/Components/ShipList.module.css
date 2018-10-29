@@ -19,3 +19,9 @@
 .right {
 
 }
+
+@media(max-width: 1024px) {
+  .view {
+    display: none;
+  }
+}

@@ -17,6 +17,7 @@ class ShipList extends Component {
     if (mode === 'setup') {
       style = styles.clickable;
     } else {
+      mode = 'view';
       style = styles.wrapper;
     }
 
@@ -35,7 +36,7 @@ class ShipList extends Component {
 
     return (
       <div
-        className={ styles[side] }
+        className={ `${styles[side]} ${styles[mode]}` }
       >
         { ships }
       </div>
