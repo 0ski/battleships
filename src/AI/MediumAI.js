@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import EasyAI from './EasyAI';
 import Board from '../Models/Board';
 import Ship from '../Models/Ship';
@@ -16,6 +18,7 @@ class MediumAI extends EasyAI {
     super({
       seed, delay, name,
     });
+    this._resetTurnParams();
   }
 
   _availableSpotsAround(opponents, target, orientation=true) {
@@ -43,52 +46,50 @@ class MediumAI extends EasyAI {
     });
   }
 
+  _resetTurnParams() {
+    this.firstCellHit = undefined;
+    this.orientationOfHuntedShip = undefined;
+    this.allTheHits = [];
+  }
+
   async _turn(opponents, prevShootState) {
     let prevResult = prevShootState.result;
-    let { firstCellHit, orientationOfHuntedShip, lastCellHit } = this;
+    let { firstCellHit, orientationOfHuntedShip } = this;
     let available = [];
-    let lastHITSpots = [];
-    let firstHITSpots = [];
+    let spotsToHit = [];
 
     //It's not a HIT and we didn't HIT anything previously
     if (prevResult !== RESULTS.HIT && prevResult !== RESULTS.SINK && !firstCellHit) {
       return super._turn(opponents, prevShootState);
     } else if (prevResult === RESULTS.SINK) { //Ship is already sunken
-      this.firstCellHit = undefined;
-      this.orientationOfHuntedShip = undefined;
-      this.lastCellHit = undefined;
+      this._resetTurnParams();
       return super._turn(opponents, prevShootState);
     } else {
       if (!firstCellHit) { //Previous HIT was the first one
         this.firstCellHit = prevShootState.target;
-        firstHITSpots = this._availableSpotsAround(opponents, prevShootState.target);
-      } else if (firstCellHit && prevResult === RESULTS.WATER) { //Previous attempt was WATER
-        firstHITSpots = this._availableSpotsAround(opponents, firstCellHit);
-        if (lastCellHit) { //But the other end was targeted
-          lastHITSpots = this._availableSpotsAround(
-            opponents, lastCellHit, orientationOfHuntedShip
-          );
-        }
-      } else if (firstCellHit && prevResult === RESULTS.HIT) { //Previous attempt was HIT
-        if (orientationOfHuntedShip === undefined) { //And we didn't know orientation
+        spotsToHit = this._availableSpotsAround(opponents, prevShootState.target);
+        this.allTheHits.push(prevShootState.target);
+      } else {
+        //And we didn't know orientation
+        if (orientationOfHuntedShip === undefined && prevResult === RESULTS.HIT) {
           if (firstCellHit[0] === prevShootState.target[0]) {
             orientationOfHuntedShip = VERTICAL;
           } else if (firstCellHit[1] === prevShootState.target[1]) {
             orientationOfHuntedShip = HORIZONTAL;
           }
+          this.orientationOfHuntedShip = orientationOfHuntedShip;
         }
 
-        this.lastCellHit = prevShootState.target;
+        if (prevResult === RESULTS.HIT) {
+          this.allTheHits.push(prevShootState.target);
+        }
 
-        lastHITSpots = this._availableSpotsAround(
-          opponents, prevShootState.target, orientationOfHuntedShip
-        );
-        firstHITSpots = this._availableSpotsAround(
-          opponents, firstCellHit, orientationOfHuntedShip
-        );
+        spotsToHit = _.flatten(this.allTheHits.map(pos => this._availableSpotsAround(
+          opponents, pos, orientationOfHuntedShip
+        )));
       }
 
-      available = firstHITSpots.concat(lastHITSpots);
+      available = spotsToHit;
 
       if (available.length) {
         return {
@@ -96,9 +97,7 @@ class MediumAI extends EasyAI {
           target: available[this.random() % available.length],
         };
       } else { //Fallback to random shooting
-        this.firstCellHit = undefined;
-        this.orientationOfHuntedShip = undefined;
-        this.lastCellHit = undefined;
+        this._resetTurnParams();
         return super._turn(opponents, prevShootState);
       }
     }
