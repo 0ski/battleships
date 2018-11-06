@@ -2,6 +2,7 @@ import React, { Component, createContext } from 'react';
 
 import Game from './Models/Game';
 import LocalPlayer from './LocalPlayer/LocalPlayer';
+import RemotePlayer from './RemotePlayer/RemotePlayer';
 
 const AI_DELAY = 500;
 const GAME_STATES = Game.states();
@@ -64,21 +65,34 @@ class GameRunner extends Component {
 
   addPlayers = players => {
     let player;
-    players.forEach(PlayerCls => {
-      if (PlayerCls !== LocalPlayer) {
-        player = new PlayerCls({
-          delay: AI_DELAY,
-        });
-      } else {
-        player = new LocalPlayer({
-          setupCallback: this.startLocalPlayerSetup,
-          turnCallback: this.startLocalPlayerTurn,
-        });
-        this.setState({ localPlayer: player });
-      }
 
+    if (players[1] === RemotePlayer) {
+      player = new LocalPlayer({
+        setupCallback: this.startLocalPlayerSetup,
+        turnCallback: this.startLocalPlayerTurn,
+        isOnlineGame: true,
+      });
+      this.setState({ localPlayer: player });
       this.game.add(player);
-    });
+      player = new RemotePlayer();
+      this.game.add(player);
+    } else {
+      players.forEach(PlayerCls => {
+        if (PlayerCls !== LocalPlayer) {
+          player = new PlayerCls({
+            delay: AI_DELAY,
+          });
+        } else {
+          player = new LocalPlayer({
+            setupCallback: this.startLocalPlayerSetup,
+            turnCallback: this.startLocalPlayerTurn,
+          });
+          this.setState({ localPlayer: player });
+        }
+
+        this.game.add(player);
+      });
+    }
   };
 
   getPlayers = () => this.game.players();

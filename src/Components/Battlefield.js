@@ -11,6 +11,8 @@ class Battlefield extends Component {
     let { gameRunner } = this.props.gameInterface;
     let players = gameRunner.getPlayers();
 
+    console.log(players);
+
     let boardOneMode = players[1] instanceof LocalPlayer ? 'battle' : 'view';
     let boardTwoMode = players[0] instanceof LocalPlayer ? 'battle' : 'view';
 

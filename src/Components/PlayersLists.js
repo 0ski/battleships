@@ -4,6 +4,7 @@ import _ from 'lodash';
 import SelectionList from './SelectionList';
 import * as ComputerPlayers from '../AI';
 import LocalPlayer from '../LocalPlayer/LocalPlayer';
+import RemotePlayer from '../RemotePlayer/RemotePlayer';
 
 import styles from './PlayersList.module.css';
 import './list.css';
@@ -41,6 +42,11 @@ class PlayersList extends Component {
     this.playersWithLocal.push({
       cls: LocalPlayer,
       name: 'Local Player',
+    });
+    this.playersWithRemote = _.clone(this.players);
+    this.playersWithRemote.push({
+      cls: RemotePlayer,
+      name: 'Remote Player',
     });
   }
 
@@ -81,8 +87,8 @@ class PlayersList extends Component {
           <div className={ styles.playersList }>
             <div className={ styles.playerNo }>Player 2:</div>
             <SelectionList
-              items={ this.players }
-              selected={ this.players[0] }
+              items={ this.playersWithRemote }
+              selected={ this.playersWithRemote[0] }
               select={
                 selected => { this.selectPlayer(selected, 1); }
               }

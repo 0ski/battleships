@@ -4,6 +4,8 @@ import Ship from './Ship';
 import Board from './Board';
 import Player from './Player';
 
+import RemotePlayer from '../RemotePlayer/RemotePlayer';
+
 const SHIP_TYPES = Ship.types();
 const { WATER, HIT, SINK, ERROR } = Board.results();
 
@@ -210,10 +212,40 @@ class Game {
     }
 
     players.map(player => player.ships(this._createShips()));
+
+    let remotePlayerIndex = players.findIndex(pl => pl instanceof RemotePlayer);
+    let localPlayerIndex = (remotePlayerIndex + 1) % 2;
     let promises = players.map(player => player.setup(player.ships()));
 
+    // if (remotePlayerIndex !== -1) {
+    //   console.log(remotePlayerIndex, localPlayerIndex);
+    //   let whoIsFirst;
+    //   await promises[remotePlayerIndex].then(() => {
+    //     if (whoIsFirst === undefined) {
+    //       whoIsFirst = remotePlayerIndex;
+    //     }
+    //   });
+    //   await promises[localPlayerIndex].then(() => {
+    //     if (whoIsFirst === undefined) {
+    //       whoIsFirst = localPlayerIndex;
+    //     }
+    //   });
+    //   console.log('after', remotePlayerIndex, localPlayerIndex, whoIsFirst);
+    //   if (whoIsFirst === remotePlayerIndex) {
+    //     this._turn++;
+    //   }
+    // }
+
+    let val = await Promise.race(promises);
+
+    if (val === players[remotePlayerIndex].board()) {
+      this._turn++;
+    }
+
     await Promise.all(promises);
+    console.log('All players setup their boards');
     let verdicts = players.map(player => this.verify(player.board(), player.ships()));
+    console.log('Players verdicts', verdicts);
 
     if (verdicts.every(verdict => verdict)) {
       this._changeState(BATTLE);

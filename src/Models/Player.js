@@ -1,6 +1,10 @@
 import Board from './Board';
 
 class Player {
+  name() {
+    return this._name;
+  }
+
   enter(game) {
     this._game = game;
   }
